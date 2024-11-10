@@ -1,0 +1,7 @@
+module DSP {
+    interface TransporterCtrlUsesPort {
+        SInt32 SendTest();
+        SInt32 SendPowerPhaseQuery();
+        SInt32 SendIQSpectrumQuery();
+    }
+}
