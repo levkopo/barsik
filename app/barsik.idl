@@ -1,0 +1,12 @@
+module DSP
+{
+    interface TransporterCtrlUsesPort_v2
+    {
+        long SendTest();
+        long SendPowerPhaseQuery();
+        long SendIQSpectrumQuery();
+        long SendSignalMessage();
+        long getSigBoardInfo();
+        long releaseFifo();
+    };
+};

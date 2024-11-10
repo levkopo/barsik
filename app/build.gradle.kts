@@ -9,8 +9,20 @@ plugins {
 group = "ru.levkopo.barsik"
 version = "0.1"
 
-dependencies {
+configurations {
+    create("corba")
+}
 
+sourceSets {
+    this.getByName("main").java.srcDirs("build/generated/sources/jacorbIDL")
+}
+
+dependencies {
+    implementation("org.jacorb:jacorb:3.2")
+
+    val corba by configurations
+    corba("org.jacorb:jacorb-idl-compiler:3.6.1")
+    corba("org.jacorb:jacorb-omgapi:3.6.1")
 }
 
 tasks.jar {
@@ -25,9 +37,23 @@ tasks.jar {
         .exclude("META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")
 }
 
+tasks.create<JavaExec>("buildCorba") {
+    mainClass.set("org.jacorb.idl.parser")
+    classpath = configurations.getByName("corba")
+    args = listOf(
+        "-d", "build/generated/sources/jacorbIDL",
+        "barsik.idl",
+    )
+}
+
 repositories {
     mavenCentral()
     maven(url = "https://oss.sonatype.org/content/repositories/")
+}
+
+java {
+    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_1_8
 }
 
 kotlin {
