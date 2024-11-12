@@ -15,9 +15,14 @@ configurations {
 
 sourceSets {
     this.getByName("main").java.srcDirs("build/generated/sources/jacorbIDL")
+    this.getByName("main").resources.srcDirs("src/main/resources")
 }
 
 dependencies {
+    implementation("commons-net:commons-net:3.11.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.9.0")
     implementation("org.jacorb:jacorb:3.2")
 
     val corba by configurations
@@ -32,6 +37,8 @@ tasks.jar {
             "Main-Class" to "zation.server.api.MainKt"
         )
     }
+
+    include(sourceSets.getByName("main").resources.includes)
 
     from(configurations.compileClasspath.map { config -> config.map { if (it.isDirectory) it else zipTree(it) } })
         .exclude("META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")

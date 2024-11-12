@@ -1,58 +1,95 @@
 package ru.levkopo.barsik
 
-import DSP.TransporterCtrlUsesPort_v2Helper
-import org.omg.CORBA.ORB
-import org.omg.CosNaming.NamingContextExtHelper
-import org.omg.PortableServer.POAHelper
-import java.lang.Thread.sleep
-import java.util.*
-import kotlin.concurrent.thread
-import kotlin.emptyArray
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import java.awt.Color
+import java.awt.Dimension
+import javax.swing.*
+import javax.swing.table.DefaultTableModel
 
-const val JACORB = "JACORB"
 
+private val barsik = Barsik()
+private val mainCoroutineScope = CoroutineScope(Dispatchers.Main)
 
 fun main() {
-    val props = Properties()
-    props["org.omg.CORBA.ORBInitialHost"] = "10.66.23.100"
-    props["org.omg.CORBA.ORBInitialPort"] = "9999"
+    showSplash()
 
-    var orbName = System.getProperty("com.lni.lps.orb")
-    if (orbName == null) {
-        orbName = JACORB
+    val mainFrame = JFrame("Барсик")
+    mainFrame.defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
+    mainFrame.size = Dimension(800, 600)
+    mainFrame.isResizable = false
+    mainFrame.maximumSize = Dimension(800, 600)
+    mainFrame.isVisible = true
+
+    val mainBox = Box.createVerticalBox()
+    mainBox.border = BorderFactory.createEmptyBorder(14, 16, 16, 14)
+    mainFrame.contentPane = mainBox
+
+    val connectionButton = JButton()
+    connectionButton.addActionListener {
+        if(barsik.state.value is Barsik.State.CONNECTED) {
+            barsik.stop()
+        }else barsik.start()
     }
 
-    if (orbName == JACORB) {
-        System.setProperty("jacorb.log.default.verbosity", "0")
-        props["org.omg.CORBA.ORBClass"] = "org.jacorb.orb.ORB"
+    val exportButton = JButton("Экспорт в XLSX")
+    exportButton.addActionListener {
 
-        val clientConnTimeout = Integer.getInteger("com.lni.lps.clientConnTimeout", 60000)
-        val clientReplyTimeout = Integer.getInteger("com.lni.lps.clientReplyTimeout", 300000)
-
-        props["jacorb.connection.client.pending_reply_timeout"] = clientReplyTimeout.toString()
-        props["jacorb.connection.client.connect_timeout"] = clientConnTimeout.toString()
-
-        props["jacorb.connection.server.timeout"] = clientReplyTimeout.toString()
     }
 
-    val orb = ORB.init(emptyArray(), props)
+    val errorTextArea = JTextArea(4, 4)
+    errorTextArea.border = BorderFactory.createEmptyBorder(6, 8, 6, 8)
+    errorTextArea.background = Color(255, 183, 183)
 
-    try {
-        while (true) {
-            try {
-                val poa = POAHelper.unchecked_narrow(orb.resolve_initial_references("RootPOA"))
-                poa.the_POAManager().activate()
+    val tableModel = DefaultTableModel()
+    tableModel.setColumnIdentifiers(arrayOf("Частота", "Амплитуда"))
 
-                val ncRef = NamingContextExtHelper.unchecked_narrow(orb.resolve_initial_references("NameService"))
-                break
-            }catch (e: Exception) {}
+    val table = JTable(tableModel)
+    mainBox.add(
+        Box.createHorizontalBox().apply {
+            add(connectionButton)
+            add(exportButton)
         }
-    } finally {
-        println("destroy")
-        orb.destroy()
+    )
+
+    mainBox.add(Box.createVerticalBox().apply {
+        border = BorderFactory.createEmptyBorder(8, 0, 8, 0)
+        add(JScrollPane(errorTextArea))
+    })
+
+    mainBox.add(JScrollPane(table))
+
+    mainCoroutineScope.launch {
+        barsik.state.collectLatest { state ->
+            connectionButton.isEnabled =
+                state is Barsik.State.CONNECTED || state is Barsik.State.IDLE || state is Barsik.State.ERROR
+            errorTextArea.text = ""
+            errorTextArea.isVisible = state is Barsik.State.ERROR
+            exportButton.isEnabled = state is Barsik.State.CONNECTED
+
+            when (state) {
+                is Barsik.State.CONNECTED -> {
+                    connectionButton.text = "Отсоединиться"
+                }
+
+                is Barsik.State.IDLE -> {
+                    connectionButton.text = "Подключится к серверу"
+                }
+
+                is Barsik.State.CONNECTING -> {
+                    connectionButton.text = "Попытка соединения"
+                }
+
+                is Barsik.State.ERROR -> {
+                    connectionButton.text = "Ошибка подключения"
+                    errorTextArea.text = state.error.stackTraceToString()
+                }
+            }
+        }
     }
 
-//    val ctrl = TransporterCtrlUsesPort_v2Helper.unchecked_narrow(ncRef)
 //
 //
 //    println(ctrl.SendTest())
