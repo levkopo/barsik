@@ -1,5 +1,26 @@
+module CF
+{
+    struct Resource {
+        string ip;
+    };
+
+    interface Application {
+        Resource getPort(
+            in string idk
+        );
+    };
+};
+
 module DSP
 {
+    interface ApplicationFactory {
+        CF::Application create(
+            in any a,
+            in string b,
+            in string profile
+        );
+    };
+
     interface TransporterCtrlUsesPort_v2
     {
         long SendTest();

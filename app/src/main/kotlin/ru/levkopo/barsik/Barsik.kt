@@ -1,18 +1,22 @@
 package ru.levkopo.barsik
 
+import CF.ApplicationHelper
+import DSP.ApplicationFactoryHelper
+import DSP.SNTest
+import DSP.SNTestHolder
 import DSP.TransporterCtrlUsesPort_v2
-import DSP.TransporterCtrlUsesPort_v2Helper
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import org.apache.commons.net.telnet.TelnetClient
 import org.omg.CORBA.ORB
+import org.omg.CORBA.StringHolder
+import org.omg.CosNaming.NameComponent
 import org.omg.CosNaming.NamingContextExtHelper
+import org.omg.CosNaming.NamingContextHelper
 import org.omg.PortableServer.POAHelper
+import java.io.PrintStream
 import java.util.*
 
 class Barsik {
@@ -49,54 +53,64 @@ class Barsik {
         scope.launch {
             runCatching {
                 client.connect(Config.LINUX_BOX_IP)
+                delay(200)
 
-                val scanner = Scanner(client.inputStream)
-                val outputStream = client.outputStream.writer()
-                var tryingSu = false
-                while (true) {
-                    val line = scanner.nextLine()
-                    when {
-                        line.startsWith("box login:") -> outputStream.write(Config.LINUX_BOX_USER + "\r\n")
-                        line.startsWith("Password:") -> outputStream.write(
-                            when (tryingSu) {
-                                true -> Config.LINUX_BOX_SU_PASSWORD
-                                else -> Config.LINUX_BOX_PASSWORD
-                            } + "\r\n"
-                        )
+                val outputStream = PrintStream(client.outputStream)
+                outputStream.println(Config.LINUX_BOX_USER)
+                outputStream.flush()
+                delay(200)
 
-                        line.endsWith("$") -> {
-                            if (!tryingSu) {
-                                tryingSu = true
-                                outputStream.write("su\r\n")
-                            }
-                        }
+                outputStream.println(Config.LINUX_BOX_PASSWORD)
+                outputStream.flush()
+                delay(200)
 
-                        line.endsWith("#") -> {
-                            outputStream.write("./uhf\r\n")
-                            break
-                        }
-                        else -> {
-                            client.disconnect()
-                            throw Error("Unknown answer: $line")
-                        }
-                    }
-                }
+                outputStream.println("su\r\n")
+                outputStream.flush()
+                delay(200)
+
+                outputStream.println(Config.LINUX_BOX_SU_PASSWORD)
+                outputStream.flush()
+                delay(200)
+
+                outputStream.println("./uhf.sh")
+                outputStream.flush()
             }.onSuccess {
                 runCatching {
-                    val orb = ORB.init(emptyArray(), orbProperties)
+                    val orb = ORB.init(
+                        arrayOf(
+                            "-ORBInitialHost", Config.LINUX_BOX_IP,
+                            "-ORBInitialPort", Config.LINUX_BOX_ORB_PORT.toString(),
+                            "-ORBSupportBootstrapAgent", "1",
+                            "-ORBInitRef.NameService=corbaloc::${Config.LINUX_BOX_IP}:${Config.LINUX_BOX_ORB_PORT}/NameService"
+                        ),
+                        orbProperties
+                    )
 
                     val poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"))
                     poa.the_POAManager().activate()
 
-                    val ncRef =
-                        NamingContextExtHelper.unchecked_narrow(orb.resolve_initial_references("NameService"))
-                    TransporterCtrlUsesPort_v2Helper.unchecked_narrow(ncRef)
+                    val obj = orb.resolve_initial_references("NameService")
+                    val ncRef = NamingContextHelper.narrow(obj)
+
+                    val components = arrayOf(
+                        NameComponent("DSP", ""),
+                        NameComponent("NIG-5 Applications", ""),
+                    )
+
+                    val dspComponentObjectRef = ncRef.resolve(components)
+                    val factory = ApplicationFactoryHelper.narrow(dspComponentObjectRef)
+
+                    val testResult = SNTestHolder()
+                    val application = factory.create("SNTest", "profile", "acenter.conf/sad.xml")
+                    println(application.getPort("Scheduler").ip)
                 }.onFailure {
+                    it.printStackTrace()
                     _state.value = State.ERROR(it)
                 }.onSuccess {
-                    _state.value = State.CONNECTED(it)
+                    _state.value = State.CONNECTED
                 }
             }.onFailure {
+                it.printStackTrace()
                 _state.value = State.ERROR(it)
             }
         }
@@ -110,7 +124,7 @@ class Barsik {
     sealed interface State {
         data object IDLE : State
         data object CONNECTING : State
-        data class CONNECTED(val transporter: TransporterCtrlUsesPort_v2) : State
+        data object CONNECTED : State
         data class ERROR(val error: Throwable) : State
     }
 }

@@ -23,7 +23,7 @@ fun showSplash() {
 
 
     runBlocking {
-        delay(5000)
+        delay(500)
         splashFrame.isVisible = false
     }
 }

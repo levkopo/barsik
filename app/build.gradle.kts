@@ -15,19 +15,20 @@ configurations {
 
 sourceSets {
     this.getByName("main").java.srcDirs("build/generated/sources/jacorbIDL")
-    this.getByName("main").resources.srcDirs("src/main/resources")
+//    this.getByName("main").resources.srcDirs("src/main/resources")
 }
 
 dependencies {
     implementation("commons-net:commons-net:3.11.1")
+    implementation("org.jboss.spec.javax.rmi:jboss-rmi-api_1.0_spec:1.0.6.Final")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.9.0")
     implementation("org.jacorb:jacorb:3.2")
 
     val corba by configurations
-    corba("org.jacorb:jacorb-idl-compiler:3.6.1")
-    corba("org.jacorb:jacorb-omgapi:3.6.1")
+    corba("org.jacorb:jacorb-idl-compiler:3.9")
+    corba("org.jacorb:jacorb-omgapi:3.9")
 }
 
 tasks.jar {
@@ -38,10 +39,14 @@ tasks.jar {
         )
     }
 
-    include(sourceSets.getByName("main").resources.includes)
+//    include(sourceSets.getByName("main").resources.includes)
 
     from(configurations.compileClasspath.map { config -> config.map { if (it.isDirectory) it else zipTree(it) } })
         .exclude("META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")
+}
+
+tasks.withType<Tar> {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 tasks.create<JavaExec>("buildCorba") {
