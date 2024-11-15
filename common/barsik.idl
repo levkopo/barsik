@@ -4,9 +4,14 @@ module CF
         string ip;
     };
 
+    interface SNTest {
+
+    };
+
     interface Application {
         Resource getPort(
-            in string idk
+            in SNTest test,
+            in string type
         );
     };
 };
@@ -15,7 +20,7 @@ module DSP
 {
     interface ApplicationFactory {
         CF::Application create(
-            in any a,
+            in char a,
             in string b,
             in string profile
         );

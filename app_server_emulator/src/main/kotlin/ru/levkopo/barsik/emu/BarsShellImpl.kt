@@ -7,6 +7,7 @@ import com.khubla.telnet.shell.AbstractShellImpl
 import com.khubla.telnet.shell.command.TelnetCommandRegistry
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.lang.Thread.sleep
 import java.net.SocketException
 
 class BarsShellImpl(
@@ -14,7 +15,7 @@ class BarsShellImpl(
     private val telnetCommandRegistry: TelnetCommandRegistry,
     private val authenticationHandler: AuthenticationHandler?
 ): AbstractShellImpl(nvt) {
-    private var prompt: String = "> "
+    private var prompt: String = "at@box:~\$ "
     private val sesssionParameters: HashMap<String?, Any?> = HashMap()
 
     private fun commandLoop() {
@@ -25,11 +26,25 @@ class BarsShellImpl(
                 nvt.write(this.prompt)
                 val inputLine = nvt.readln()
                 if (null != inputLine && inputLine.isNotEmpty()) {
-                    val telnetCommand = telnetCommandRegistry.getCommand(inputLine)
-                    if (null != telnetCommand) {
-                        go = telnetCommand.execute(this.nvt, inputLine, this.sesssionParameters)
-                    } else {
-                        nvt.writeln("Unknown: $inputLine")
+                    println(inputLine)
+                    if(inputLine.startsWith("su")) {
+                        nvt.write("Password:")
+                        val suPassword = nvt.readln()
+                        println("su password: $suPassword")
+                        nvt.writeln("")
+                        prompt = "root@box:/home/at# "
+                    }
+
+                    if(inputLine.startsWith("./uhf.sh")) {
+                        nvt.writeln("./uhf.sh")
+                        nvt.writeln("DoneOk")
+                        for (i in 0..5) {
+                            nvt.writeln("\u001B[mInitialize CORBA: ")
+                            nvt.writeln("done.")
+                            nvt.writeln("")
+                        }
+
+                        go = false
                     }
                 }
             }
@@ -43,15 +58,18 @@ class BarsShellImpl(
     }
 
     private fun login(): Boolean {
-        nvt.write("login: ")
+        nvt.writeln("Ubuntu 8.04.2")
+        nvt.write("box login: ")
         val username = nvt.readln()
-        nvt.write("password: ")
+        nvt.write("Password: ")
         val password = nvt.readln()
-        return if (null != username && null != password) authenticationHandler!!.login(
-            username,
-            password,
-            this.sesssionParameters
-        ) else false
+        return if (null != username && null != password) {
+            authenticationHandler!!.login(
+                username,
+                password,
+                this.sesssionParameters
+            )
+        } else false
     }
 
     private fun onConnect() {
@@ -72,6 +90,7 @@ class BarsShellImpl(
             }
 
             if (loggedIn) {
+                nvt.writeln("Last login: Thu Oct 24 17:04:25 UTC 2024 on pts/1")
                 this.commandLoop()
             }
         } catch (var2: Exception) {

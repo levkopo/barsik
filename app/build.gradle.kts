@@ -19,6 +19,7 @@ sourceSets {
 }
 
 dependencies {
+    implementation(project(":common"))
     implementation("commons-net:commons-net:3.11.1")
     implementation("org.jboss.spec.javax.rmi:jboss-rmi-api_1.0_spec:1.0.6.Final")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")

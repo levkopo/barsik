@@ -1,9 +1,6 @@
 package ru.levkopo.barsik
 
-import CF.ApplicationHelper
 import DSP.ApplicationFactoryHelper
-import DSP.SNTest
-import DSP.SNTestHolder
 import DSP.TransporterCtrlUsesPort_v2
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,9 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.apache.commons.net.telnet.TelnetClient
 import org.omg.CORBA.ORB
-import org.omg.CORBA.StringHolder
 import org.omg.CosNaming.NameComponent
-import org.omg.CosNaming.NamingContextExtHelper
 import org.omg.CosNaming.NamingContextHelper
 import org.omg.PortableServer.POAHelper
 import java.io.PrintStream
@@ -97,12 +92,10 @@ class Barsik {
                         NameComponent("NIG-5 Applications", ""),
                     )
 
-                    val dspComponentObjectRef = ncRef.resolve(components)
-                    val factory = ApplicationFactoryHelper.narrow(dspComponentObjectRef)
+                    val factory = ApplicationFactoryHelper.narrow(ncRef.resolve(components))
 
-                    val testResult = SNTestHolder()
-                    val application = factory.create("SNTest", "profile", "acenter.conf/sad.xml")
-                    println(application.getPort("Scheduler").ip)
+                    val application = factory.create('a', "profile", "acenter.conf/sad.xml")
+//                    println(application.getPort("Scheduler").ip)
                 }.onFailure {
                     it.printStackTrace()
                     _state.value = State.ERROR(it)

@@ -10,6 +10,7 @@ group = "ru.levkopo.barsik.emu"
 version = "0.1"
 
 dependencies {
+    implementation(project(":common"))
     implementation("com.khubla.ktelnet:ktelnet:1.1")
 }
 
