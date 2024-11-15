@@ -50,15 +50,6 @@ tasks.withType<Tar> {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
-tasks.create<JavaExec>("buildCorba") {
-    mainClass.set("org.jacorb.idl.parser")
-    classpath = configurations.getByName("corba")
-    args = listOf(
-        "-d", "build/generated/sources/jacorbIDL",
-        "barsik.idl",
-    )
-}
-
 repositories {
     mavenCentral()
     maven(url = "https://oss.sonatype.org/content/repositories/")

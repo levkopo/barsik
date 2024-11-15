@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import org.jacorb.orb.CDRInputStream
 import java.awt.Color
 import java.awt.Dimension
 import javax.swing.*
@@ -13,6 +14,7 @@ import javax.swing.table.DefaultTableModel
 private val barsik = Barsik()
 private val mainCoroutineScope = CoroutineScope(Dispatchers.Main)
 
+@OptIn(ExperimentalStdlibApi::class)
 fun main() {
 //    val outputStream = CDRInputStream(byteArrayOf(
 //        0x07, 0x00, 0x00, 0x00, 0x53, 0x4e, 0x54, 0x65, 0x73, 0x74,
@@ -25,6 +27,10 @@ fun main() {
 //        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
 //        0x00
 //    ))
+//
+//
+//    println(outputStream.read_Object())
+//    println(outputStream.read_abstract_interface())
 
     showSplash()
 

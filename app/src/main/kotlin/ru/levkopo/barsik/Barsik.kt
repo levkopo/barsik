@@ -1,13 +1,15 @@
 package ru.levkopo.barsik
 
-import DSP.ApplicationFactoryHelper
-import DSP.TransporterCtrlUsesPort_v2
+import CF.*
+import DSP.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.apache.commons.net.telnet.TelnetClient
+import org.jacorb.orb.CDRInputStream
 import org.omg.CORBA.ORB
+import org.omg.CORBA.portable.ObjectImpl
 import org.omg.CosNaming.NameComponent
 import org.omg.CosNaming.NamingContextHelper
 import org.omg.PortableServer.POAHelper
@@ -94,7 +96,21 @@ class Barsik {
 
                     val factory = ApplicationFactoryHelper.narrow(ncRef.resolve(components))
 
-                    val application = factory.create('a', "profile", "acenter.conf/sad.xml")
+                    val os = (factory as ObjectImpl)._request("create", true)
+                    byteArrayOf(
+                        0x07, 0x00, 0x00, 0x00, 0x53, 0x4e, 0x54, 0x65, 0x73, 0x74,
+                        0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00,
+                        0x70, 0x72, 0x6f, 0x66, 0x69, 0x6c, 0x65, 0x00, 0x12, 0x00,
+                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x15, 0x00, 0x00, 0x00,
+                        0x61, 0x63, 0x65, 0x6e, 0x74, 0x65, 0x72, 0x2e, 0x63, 0x6f,
+                        0x6e, 0x66, 0x2f, 0x73, 0x61, 0x64, 0x2e, 0x78, 0x6d, 0x6c,
+                        0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
+                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+                        0x00
+                    ).forEach { os.write_octet(it) }
+
+                    val application = ApplicationHelper.read(factory._invoke(os))
+//                    val application = factory.create("SNTest", AppConfig("test", "profile", "acenter.conf/sad.xml"))
 //                    println(application.getPort("Scheduler").ip)
                 }.onFailure {
                     it.printStackTrace()

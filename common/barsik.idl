@@ -4,28 +4,28 @@ module CF
         string ip;
     };
 
-    interface SNTest {
-
-    };
-
     interface Application {
         Resource getPort(
-            in SNTest test,
             in string type
+        );
+    };
+
+    struct AppConfig {
+        string idk;
+        string type;
+        string file;
+    };
+
+    interface ApplicationFactory {
+        CF::Application create(
+            in string tester,
+            in AppConfig config
         );
     };
 };
 
 module DSP
 {
-    interface ApplicationFactory {
-        CF::Application create(
-            in char a,
-            in string b,
-            in string profile
-        );
-    };
-
     interface TransporterCtrlUsesPort_v2
     {
         long SendTest();
