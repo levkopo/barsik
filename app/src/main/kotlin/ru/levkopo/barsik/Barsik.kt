@@ -28,23 +28,6 @@ class Barsik {
     private val _transporter = MutableStateFlow<TransporterCtrlUsesPort_v2?>(null)
     val transporter: StateFlow<TransporterCtrlUsesPort_v2?> = _transporter.asStateFlow()
 
-    private val orbProperties = Properties().apply {
-        this["org.omg.CORBA.ORBInitialHost"] = Config.LINUX_BOX_IP
-        this["org.omg.CORBA.ORBInitialPort"] = Config.LINUX_BOX_ORB_PORT
-
-        System.setProperty("jacorb.log.default.verbosity", "0")
-        this["org.omg.CORBA.ORBClass"] = "org.jacorb.orb.ORB"
-
-        val clientConnTimeout = Integer.getInteger("com.lni.lps.clientConnTimeout", 60000)
-        val clientReplyTimeout = Integer.getInteger("com.lni.lps.clientReplyTimeout", 300000)
-
-        this["jacorb.connection.client.pending_reply_timeout"] = clientReplyTimeout.toString()
-        this["jacorb.connection.client.connect_timeout"] = clientConnTimeout.toString()
-
-        this["jacorb.connection.server.timeout"] = clientReplyTimeout.toString()
-    }
-
-
     fun start() {
         _state.value = State.CONNECTING
         scope.launch {
@@ -71,6 +54,8 @@ class Barsik {
 
                 outputStream.println("./uhf.sh")
                 outputStream.flush()
+
+                delay(5000)
             }.onSuccess {
                 runCatching {
                     val orb = ORB.init(
@@ -80,7 +65,7 @@ class Barsik {
                             "-ORBSupportBootstrapAgent", "1",
                             "-ORBInitRef.NameService=corbaloc::${Config.LINUX_BOX_IP}:${Config.LINUX_BOX_ORB_PORT}/NameService"
                         ),
-                        orbProperties
+                        Config.orbProperties
                     )
 
                     val poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"))

@@ -1,33 +1,88 @@
-module CF
+module DSP
 {
-    struct Resource {
-        string ip;
+    struct att_entry_t {
+        unsigned long band_id;
+        unsigned long att;
+        unsigned long ChanCount;
+        unsigned long minFreq;
+        unsigned long maxFreq;
     };
 
-    interface Application {
-        Resource getPort(
-            in string type
+    typedef sequence<att_entry_t> AttEntrySeq;
+
+    struct band_t {
+        unsigned long begfreq;
+        unsigned long endfreq;
+        AttEntrySeq values;
+    };
+
+    typedef sequence<band_t> BandSeq;
+
+    struct AttenuatorSet {
+        BandSeq bands;
+    };
+
+    interface SigBoardInfo3 {
+        unsigned long IdRcv();
+        unsigned long IdCon();
+        unsigned long IdSwt();
+        unsigned long Filters();
+        unsigned long SampleFreqs();
+        unsigned long RangeBands();
+        unsigned long WatchTimes();
+        unsigned long WinParams();
+        unsigned long SuperRangeBands();
+        AttenuatorSet Attenuators();
+//        sequence<band_t> AllGroupRangeBands();
+    };
+};
+
+module CF
+{
+    interface Port {
+        void connectPort(
+
         );
     };
 
-    struct AppConfig {
-        string idk;
-        string type;
-        string file;
+    module PortSupplier {
+        exception UnknownPort {
+
+        };
+    };
+
+    interface Resource: Port {
+        void releaseObject();
+    };
+
+    interface Application {
+        Port getPort(
+            in string type
+        ) raises (PortSupplier::UnknownPort);
+
+        void releaseObject();
     };
 
     interface ApplicationFactory {
         CF::Application create(
-            in string tester,
-            in AppConfig config
+            in string task,
+            in unsigned long a,
+            in string type,
+            in unsigned long b,
+            in string path
         );
     };
 };
 
-module DSP
-{
-    interface TransporterCtrlUsesPort_v2
-    {
+module DSP {
+    interface TransporterDataPort: CF::Port {
+
+    };
+
+    interface TransporterCtrlUsesPort_v1: CF::Port {};
+    interface TransporterCtrlUsesPort_v2: TransporterCtrlUsesPort_v1 {};
+
+    interface TransporterCtrlUsesPort_v3: TransporterCtrlUsesPort_v2 {
         long SendTest();
         long SendPowerPhaseQuery();
         long SendIQSpectrumQuery();
@@ -35,4 +90,5 @@ module DSP
         long getSigBoardInfo();
         long releaseFifo();
     };
+
 };

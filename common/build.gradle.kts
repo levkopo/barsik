@@ -18,6 +18,9 @@ sourceSets {
 }
 
 dependencies {
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.9.0")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.9.0")
     api("org.jboss.spec.javax.rmi:jboss-rmi-api_1.0_spec:1.0.6.Final")
     api("org.jacorb:jacorb:3.2")
 
@@ -27,6 +30,8 @@ dependencies {
 }
 
 tasks.create<JavaExec>("buildCorba") {
+    dependsOn(tasks.clean)
+
     group = "build"
     mainClass.set("org.jacorb.idl.parser")
     classpath = configurations.getByName("corba")
@@ -34,6 +39,8 @@ tasks.create<JavaExec>("buildCorba") {
         "-d", "build/generated/sources/jacorbIDL",
         "barsik.idl",
     )
+
+
 }
 
 tasks.build {

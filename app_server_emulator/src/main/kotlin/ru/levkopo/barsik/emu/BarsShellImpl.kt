@@ -7,7 +7,6 @@ import com.khubla.telnet.shell.AbstractShellImpl
 import com.khubla.telnet.shell.command.TelnetCommandRegistry
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.lang.Thread.sleep
 import java.net.SocketException
 
 class BarsShellImpl(
@@ -36,6 +35,7 @@ class BarsShellImpl(
                     }
 
                     if(inputLine.startsWith("./uhf.sh")) {
+                        launchORBD()
                         nvt.writeln("./uhf.sh")
                         nvt.writeln("DoneOk")
                         for (i in 0..5) {
@@ -72,13 +72,8 @@ class BarsShellImpl(
         } else false
     }
 
-    private fun onConnect() {
-
-    }
-
-    private fun onDisconnect() {
-
-    }
+    private fun onConnect() {}
+    private fun onDisconnect() {}
 
     public override fun runShell() {
         try {
