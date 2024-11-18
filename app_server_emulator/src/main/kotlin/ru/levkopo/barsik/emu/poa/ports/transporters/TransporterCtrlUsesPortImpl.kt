@@ -6,11 +6,7 @@ import org.omg.PortableServer.POA
 class TransporterCtrlUsesPortImpl(
     val rootPOA: POA
 ): TransporterCtrlUsesPort_v3POA() {
-    override fun connectPort() {
-        TODO("Not yet implemented")
-    }
-
-    override fun SendTest(): Int {
+    override fun SendTest() {
         TODO("Not yet implemented")
     }
 

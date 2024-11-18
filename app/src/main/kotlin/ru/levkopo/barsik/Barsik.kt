@@ -60,11 +60,8 @@ class Barsik {
                 runCatching {
                     val orb = ORB.init(
                         arrayOf(
-                            "-ORBInitialHost", Config.LINUX_BOX_IP,
-                            "-ORBInitialPort", Config.LINUX_BOX_ORB_PORT.toString(),
                             "-ORBSupportBootstrapAgent", "1",
-                            "-ORBInitRef.NameService=corbaloc::${Config.LINUX_BOX_IP}:${Config.LINUX_BOX_ORB_PORT}/NameService"
-                        ),
+                        ) + Config.orbInitialParameters,
                         Config.orbProperties
                     )
 
@@ -80,23 +77,21 @@ class Barsik {
                     )
 
                     val factory = ApplicationFactoryHelper.narrow(ncRef.resolve(components))
+                    val application = factory.create(
+                        AppConfig(
+                            "SNTest",
+                            1,
+                            "profile",
+                            18,
+                            0,
+                            "acenter.conf/sad.xml"
+                        )
+                    )
 
-                    val os = (factory as ObjectImpl)._request("create", true)
-                    byteArrayOf(
-                        0x07, 0x00, 0x00, 0x00, 0x53, 0x4e, 0x54, 0x65, 0x73, 0x74,
-                        0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00,
-                        0x70, 0x72, 0x6f, 0x66, 0x69, 0x6c, 0x65, 0x00, 0x12, 0x00,
-                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x15, 0x00, 0x00, 0x00,
-                        0x61, 0x63, 0x65, 0x6e, 0x74, 0x65, 0x72, 0x2e, 0x63, 0x6f,
-                        0x6e, 0x66, 0x2f, 0x73, 0x61, 0x64, 0x2e, 0x78, 0x6d, 0x6c,
-                        0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
-                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
-                        0x00
-                    ).forEach { os.write_octet(it) }
-
-                    val application = ApplicationHelper.read(factory._invoke(os))
+                    val resource = application.getPort("Scheduler")
+//                    val sigBoardInfo = resource.query()
 //                    val application = factory.create("SNTest", AppConfig("test", "profile", "acenter.conf/sad.xml"))
-//                    println(application.getPort("Scheduler").ip)
+//                    println()
                 }.onFailure {
                     it.printStackTrace()
                     _state.value = State.ERROR(it)

@@ -39,8 +39,6 @@ tasks.create<JavaExec>("buildCorba") {
         "-d", "build/generated/sources/jacorbIDL",
         "barsik.idl",
     )
-
-
 }
 
 tasks.build {

@@ -1,5 +1,11 @@
 module DSP
 {
+  struct KeyVal {
+    string key;
+    string value;
+  };
+  typedef sequence<KeyVal> KeyValSeq;
+
     struct att_entry_t {
         unsigned long band_id;
         unsigned long att;
@@ -17,73 +23,89 @@ module DSP
     };
 
     typedef sequence<band_t> BandSeq;
+    typedef sequence<unsigned long> RangeBands_seq;
+    typedef sequence<unsigned long> SampleFreqs_seq;
+    typedef sequence<unsigned long> Filters_seq;
+    typedef sequence<unsigned long> WatchTimes_seq;
+    typedef sequence<unsigned long> WinParams_seq;
+    typedef sequence<unsigned long> SuperRangeBands_seq;
+    typedef sequence<unsigned long> AllGroupRangeBands_seq;
 
     struct AttenuatorSet {
         BandSeq bands;
     };
 
-    interface SigBoardInfo3 {
-        unsigned long IdRcv();
-        unsigned long IdCon();
-        unsigned long IdSwt();
-        unsigned long Filters();
-        unsigned long SampleFreqs();
-        unsigned long RangeBands();
-        unsigned long WatchTimes();
-        unsigned long WinParams();
-        unsigned long SuperRangeBands();
-        AttenuatorSet Attenuators();
-//        sequence<band_t> AllGroupRangeBands();
+    struct MapEntry {
+        string key;
+        unsigned long value;
+    };
+
+    abstract interface SigBoardInfo3 {
+        readonly attribute unsigned long IdRcv;
+        readonly attribute unsigned long IdCon;
+        readonly attribute unsigned long IdSwt;
+        readonly attribute Filters_seq filters;
+        readonly attribute SampleFreqs_seq simpleFreq;
+        readonly attribute RangeBands_seq rangeBands;
+        readonly attribute WatchTimes_seq watchTimes;
+        readonly attribute WinParams_seq winParams;
+        readonly attribute AttenuatorSet attenuator;
+        readonly attribute AllGroupRangeBands_seq allGroupRangeBands;
     };
 };
 
 module CF
 {
-    interface Port {
-        void connectPort(
-
-        );
-    };
+    interface Port {};
 
     module PortSupplier {
         exception UnknownPort {
 
         };
+
+        interface Supplier {
+            Port getPort(
+                in string type
+            ) raises (UnknownPort);
+        };
     };
 
-    interface Resource: Port {
-        void releaseObject();
-    };
-
-    interface Application {
-        Port getPort(
+    interface Resource: Port, PortSupplier::Supplier {
+        DSP::SigBoardInfo3 query(
+            in unsigned long a,
             in string type
-        ) raises (PortSupplier::UnknownPort);
-
+        );
         void releaseObject();
+    };
+
+    interface Application: PortSupplier::Supplier {
+        void releaseObject();
+    };
+
+    struct AppConfig {
+        string task;
+        unsigned long a;
+        string type;
+        unsigned long b;
+        unsigned long c;
+        string path;
     };
 
     interface ApplicationFactory {
-        CF::Application create(
-            in string task,
-            in unsigned long a,
-            in string type,
-            in unsigned long b,
-            in string path
-        );
+        CF::Application create(in AppConfig config);
     };
 };
 
 module DSP {
-    interface TransporterDataPort: CF::Port {
+    interface TransporterCtrlUsesPort_v1: CF::Port {
+        void SendTest();
+    };
+
+    interface TransporterCtrlUsesPort_v2: TransporterCtrlUsesPort_v1 {
 
     };
 
-    interface TransporterCtrlUsesPort_v1: CF::Port {};
-    interface TransporterCtrlUsesPort_v2: TransporterCtrlUsesPort_v1 {};
-
     interface TransporterCtrlUsesPort_v3: TransporterCtrlUsesPort_v2 {
-        long SendTest();
         long SendPowerPhaseQuery();
         long SendIQSpectrumQuery();
         long SendSignalMessage();
@@ -91,4 +113,15 @@ module DSP {
         long releaseFifo();
     };
 
+    typedef CF::Port ClientPort;
+
+    interface TransporterDataPort: CF::Port {
+        void connectPort(in ClientPort port) raises (CF::PortSupplier::UnknownPort);
+    };
+
+    module DirFinder {
+        interface DirFinderAnswerConsumer: CF::Port {
+
+        };
+    };
 };
