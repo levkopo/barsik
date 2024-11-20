@@ -97,8 +97,15 @@ module CF
 };
 
 module DSP {
+    typedef sequence<unsigned long> Signals;
     interface TransporterCtrlUsesPort_v1: CF::Port {
-        void SendTest();
+        oneway void SendTest();
+        void SendSignalMessage(
+            in double frequency,
+            in double attenuator,
+            in double width,
+            out Signals signals
+        );
     };
 
     interface TransporterCtrlUsesPort_v2: TransporterCtrlUsesPort_v1 {
@@ -106,9 +113,9 @@ module DSP {
     };
 
     interface TransporterCtrlUsesPort_v3: TransporterCtrlUsesPort_v2 {
+
         long SendPowerPhaseQuery();
         long SendIQSpectrumQuery();
-        long SendSignalMessage();
         long getSigBoardInfo();
         long releaseFifo();
     };

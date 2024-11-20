@@ -1,5 +1,6 @@
 package ru.levkopo.barsik.emu.poa.ports.transporters
 
+import DSP.SignalsHolder
 import DSP.TransporterCtrlUsesPort_v3POA
 import org.omg.PortableServer.POA
 
@@ -18,8 +19,10 @@ class TransporterCtrlUsesPortImpl(
         TODO("Not yet implemented")
     }
 
-    override fun SendSignalMessage(): Int {
-        TODO("Not yet implemented")
+    override fun SendSignalMessage(frequency: Double, attenuator: Double, width: Double, signals: SignalsHolder) {
+        println("SendSignalMessage: $frequency, $attenuator, $width")
+        signals.value = intArrayOf(0, 2, 5, 10, 5, 2)
+        _orb()
     }
 
     override fun getSigBoardInfo(): Int {

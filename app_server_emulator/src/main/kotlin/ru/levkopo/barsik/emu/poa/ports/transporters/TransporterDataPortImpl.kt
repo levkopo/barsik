@@ -4,6 +4,7 @@ import CF.Port
 import CF.PortSupplier.UnknownPort
 import DSP.*
 import org.omg.PortableServer.POA
+import kotlin.concurrent.thread
 
 class TransporterDataPortImpl(rootPOA: POA) : TransporterDataPortPOA() {
     override fun connectPort(port: Port) {
@@ -20,9 +21,11 @@ class TransporterDataPortImpl(rootPOA: POA) : TransporterDataPortPOA() {
                 }
 
                 println("Connected new port ${transporter.name}")
-                if (!port._non_existent()) {
-                    println("Send test signal")
-                    transporter.sendTest()
+                thread {
+                    if (!port._non_existent()) {
+                        println("Send test signal")
+                        transporter.sendTest()
+                    }
                 }
             }
 

@@ -4,12 +4,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import org.jacorb.orb.CDRInputStream
-import org.jacorb.orb.CDROutputStream
-import org.omg.CORBA.Principal
+import mdlaf.MaterialLookAndFeel
+import mdlaf.themes.MaterialOceanicTheme
+import ru.levkopo.barsik.ui.ContainedButton
 import java.awt.Color
 import java.awt.Dimension
-import java.io.Serializable
 import javax.swing.*
 import javax.swing.table.DefaultTableModel
 
@@ -20,6 +19,8 @@ private val mainCoroutineScope = CoroutineScope(Dispatchers.Main)
 @OptIn(ExperimentalStdlibApi::class)
 fun main() {
     showSplash()
+
+    UIManager.setLookAndFeel(MaterialLookAndFeel(MaterialOceanicTheme()))
 
     val mainFrame = JFrame("Барсик")
     mainFrame.defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE

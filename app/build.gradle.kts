@@ -23,6 +23,7 @@ dependencies {
     implementation("commons-net:commons-net:3.11.1")
     implementation("org.jboss.spec.javax.rmi:jboss-rmi-api_1.0_spec:1.0.6.Final")
     implementation("org.jacorb:jacorb:3.2")
+    implementation("io.github.vincenzopalazzo:material-ui-swing:1.1.4")
 
     val corba by configurations
     corba("org.jacorb:jacorb-idl-compiler:3.9")

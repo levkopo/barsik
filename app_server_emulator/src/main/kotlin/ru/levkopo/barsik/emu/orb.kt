@@ -9,16 +9,12 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import org.jacorb.naming.namemanager.NameManager
 import org.omg.CORBA.ORB
 import org.omg.CosNaming.NamingContextExtHelper
 import org.omg.PortableServer.POAHelper
 import ru.levkopo.barsik.Config
-import ru.levkopo.barsik.Config.LINUX_BOX_IP
-import ru.levkopo.barsik.Config.LINUX_BOX_ORB_PORT
 import ru.levkopo.barsik.emu.poa.factory.ApplicationFactoryImpl
 import java.util.*
-import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
 private val mainScope = CoroutineScope(Dispatchers.IO)
