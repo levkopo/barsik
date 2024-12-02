@@ -1,14 +1,18 @@
-package ru.levkopo.barsik.emu.poa.ports.transporters
+package ru.levkopo.barsik
 
 import DSP.SignalMessage
 import DSP.TransporterCtrlUsesPort_v3POA
-import org.omg.PortableServer.POA
 
-class TransporterCtrlUsesPortImpl(
-    val rootPOA: POA
+class BarsikClientTransporterImpl(
+    val collector: (SignalMessage) -> Unit,
+    val testComplete: () -> Unit
 ): TransporterCtrlUsesPort_v3POA() {
     override fun SendTest() {
-        TODO("Not yet implemented")
+        testComplete()
+    }
+
+    override fun SendSignalMessage(message: SignalMessage) {
+        collector(message)
     }
 
     override fun SendPowerPhaseQuery(): Int {
@@ -17,12 +21,6 @@ class TransporterCtrlUsesPortImpl(
 
     override fun SendIQSpectrumQuery(): Int {
         TODO("Not yet implemented")
-    }
-
-    override fun SendSignalMessage(message: SignalMessage?) {
-//        println("SendSignalMessage: $frequency, $attenuator, $width")
-//        signals.value = intArrayOf(0, 2, 5, 10, 5, 2)
-//        _orb()
     }
 
     override fun getSigBoardInfo(): Int {

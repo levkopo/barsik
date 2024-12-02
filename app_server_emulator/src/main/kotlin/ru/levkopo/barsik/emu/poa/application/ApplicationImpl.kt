@@ -1,10 +1,7 @@
 package ru.levkopo.barsik.emu.poa.application
 
-import CF.AppConfig
-import CF.ApplicationPOA
-import CF.Port
+import CF.*
 import CF.PortSupplier.UnknownPort
-import CF.ResourceHelper
 import DSP.*
 import org.omg.IOP.IORHelper
 import org.omg.PortableServer.POA
@@ -74,7 +71,7 @@ intArrayOf(),
         return sigBoardInfoPOA
     }
 
-    override fun getPort(type: String): Port {
+    override fun getPort(type: String): AbstractPort {
         println("Required port: $type")
         val (servant, narrow) = when (type) {
             "Scheduler" -> ResourceImpl(this) to ResourceHelper::narrow

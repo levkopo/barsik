@@ -1,5 +1,6 @@
 package ru.levkopo.barsik.emu.poa.ports.transporters
 
+import CF.AbstractPort
 import CF.Port
 import CF.PortSupplier.UnknownPort
 import DSP.*
@@ -7,7 +8,22 @@ import org.omg.PortableServer.POA
 import kotlin.concurrent.thread
 
 class TransporterDataPortImpl(rootPOA: POA) : TransporterDataPortPOA() {
-    override fun connectPort(port: Port) {
+    override fun connectPort(
+        port: AbstractPort,
+        ab: Int,
+        ac: Int,
+        ad: Int,
+        ae: Int,
+        af: Int,
+        ag: Int,
+        ah: Int,
+        ai: Int,
+        aaa: Int,
+        aab: Int,
+        aba: Int,
+        abb: Int,
+        type: String?
+    ) {
         when {
             port._is_a(TransporterCtrlUsesPort_v1Helper.id()) -> {
                 val transporter: TransporterController = try {

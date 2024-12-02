@@ -1,5 +1,6 @@
 package ru.levkopo.barsik.emu.poa.ports.resource
 
+import CF.AbstractPort
 import CF.Port
 import CF.ResourcePOA
 import DSP.SigBoardInfo3
@@ -34,7 +35,7 @@ class ResourceImpl(val applicationImpl: ApplicationImpl) : ResourcePOA() {
 
     override fun query(a: Int, type: String): SigBoardInfo3 = applicationImpl.getSigBoardInfo()
 
-    override fun getPort(type: String): Port = applicationImpl.getPort(type)
+    override fun getPort(type: String): AbstractPort = applicationImpl.getPort(type)
 
     override fun releaseObject() {
         println("Released resource")

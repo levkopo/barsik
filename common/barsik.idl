@@ -56,7 +56,7 @@ module DSP
 
 module CF
 {
-    interface Port {};
+    interface AbstractPort {};
 
     module PortSupplier {
         exception UnknownPort {
@@ -64,13 +64,32 @@ module CF
         };
 
         interface Supplier {
-            Port getPort(
+            AbstractPort getPort(
                 in string type
             ) raises (UnknownPort);
         };
     };
 
-    interface Resource: Port, PortSupplier::Supplier {
+    interface Port: AbstractPort {
+        void connectPort(
+                    in AbstractPort port,
+                    in unsigned long ab,
+                    in unsigned long ac,
+                    in unsigned long ad,
+                    in unsigned long ae,
+                    in unsigned long af,
+                    in unsigned long ag,
+                    in unsigned long ah,
+                    in unsigned long ai,
+                    in unsigned long aaa,
+                    in unsigned long aab,
+                    in unsigned long aba,
+                    in unsigned long abb,
+                    in string type
+        ) raises (CF::PortSupplier::UnknownPort);
+    };
+
+    interface Resource: AbstractPort, PortSupplier::Supplier {
         DSP::SigBoardInfo3 query(
             in unsigned long a,
             in string type
@@ -89,6 +108,9 @@ module CF
         unsigned long b;
         unsigned long c;
         string path;
+        unsigned long d;
+        unsigned long f;
+        unsigned long e;
     };
 
     interface ApplicationFactory {
@@ -97,14 +119,44 @@ module CF
 };
 
 module DSP {
-    typedef sequence<unsigned long> Signals;
-    interface TransporterCtrlUsesPort_v1: CF::Port {
+    struct Signals {
+        unsigned long a;
+        unsigned long b;
+        unsigned long c;
+        unsigned long d;
+        unsigned long e;
+        unsigned long f;
+        unsigned long g;
+        unsigned long h;
+    };
+
+    struct SignalMessage {
+        double frequency;
+        double attenuator;
+        double width;
+        Signals signals_;
+        unsigned long aaa;
+        unsigned long aab;
+        unsigned long aac;
+        unsigned long aad;
+        unsigned long packetNumber;
+        boolean b;
+        long c;
+        boolean d;
+        boolean f;
+        double aa;
+        double ab;
+        double ac;
+        unsigned long ae;
+        unsigned long af;
+        unsigned long ag;
+        unsigned long ah;
+    };
+
+    interface TransporterCtrlUsesPort_v1: CF::AbstractPort {
         oneway void SendTest();
-        void SendSignalMessage(
-            in double frequency,
-            in double attenuator,
-            in double width,
-            out Signals signals
+        oneway void SendSignalMessage(
+            in SignalMessage message
         );
     };
 
@@ -120,10 +172,8 @@ module DSP {
         long releaseFifo();
     };
 
-    typedef CF::Port ClientPort;
-
     interface TransporterDataPort: CF::Port {
-        void connectPort(in ClientPort port) raises (CF::PortSupplier::UnknownPort);
+
     };
 
     module DirFinder {
