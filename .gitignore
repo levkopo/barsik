@@ -46,3 +46,4 @@ bin/
 orb.db/
 ktelnet.log
 ktelnet.log*
+/.idea/
