@@ -73,18 +73,6 @@ module CF
     interface Port: AbstractPort {
         void connectPort(
                     in AbstractPort port,
-                    in unsigned long ab,
-                    in unsigned long ac,
-                    in unsigned long ad,
-                    in unsigned long ae,
-                    in unsigned long af,
-                    in unsigned long ag,
-                    in unsigned long ah,
-                    in unsigned long ai,
-                    in unsigned long aaa,
-                    in unsigned long aab,
-                    in unsigned long aba,
-                    in unsigned long abb,
                     in string type
         ) raises (CF::PortSupplier::UnknownPort);
     };
@@ -94,7 +82,7 @@ module CF
             in unsigned long a,
             in string type
         );
-        void releaseObject();
+        oneway void releaseObject();
     };
 
     interface Application: PortSupplier::Supplier {
@@ -169,7 +157,7 @@ module DSP {
         long SendPowerPhaseQuery();
         long SendIQSpectrumQuery();
         long getSigBoardInfo();
-        long releaseFifo();
+        oneway void releaseFifo();
     };
 
     interface TransporterDataPort: CF::Port {

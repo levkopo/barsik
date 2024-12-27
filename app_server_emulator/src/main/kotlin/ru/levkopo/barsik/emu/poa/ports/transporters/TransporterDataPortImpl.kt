@@ -5,46 +5,42 @@ import CF.Port
 import CF.PortSupplier.UnknownPort
 import DSP.*
 import org.omg.PortableServer.POA
+import ru.levkopo.barsik.emu.poa.application.ApplicationImpl
 import kotlin.concurrent.thread
 
-class TransporterDataPortImpl(rootPOA: POA) : TransporterDataPortPOA() {
+class TransporterDataPortImpl(
+    private val application: ApplicationImpl
+) : TransporterDataPortPOA() {
     override fun connectPort(
         port: AbstractPort,
-        ab: Int,
-        ac: Int,
-        ad: Int,
-        ae: Int,
-        af: Int,
-        ag: Int,
-        ah: Int,
-        ai: Int,
-        aaa: Int,
-        aab: Int,
-        aba: Int,
-        abb: Int,
-        type: String?
+        type: String
     ) {
-        when {
-            port._is_a(TransporterCtrlUsesPort_v1Helper.id()) -> {
-                val transporter: TransporterController = try {
-                    TransporterControllerV3(TransporterCtrlUsesPort_v3Helper.narrow(port))
-                } catch (_: Exception) {
-                    try {
-                        TransporterControllerV2(TransporterCtrlUsesPort_v2Helper.narrow(port))
+        println("Connecting port: $port, type: $type")
+        application.connectPort(type, port)
+        when(type) {
+            "DataConnection" -> when {
+                port._is_a(TransporterCtrlUsesPort_v1Helper.id()) -> {
+                    val transporter: TransporterController = try {
+                        TransporterControllerV3(TransporterCtrlUsesPort_v3Helper.narrow(port))
                     } catch (_: Exception) {
-                        TransporterControllerV1(TransporterCtrlUsesPort_v1Helper.unchecked_narrow(port))
+                        try {
+                            TransporterControllerV2(TransporterCtrlUsesPort_v2Helper.narrow(port))
+                        } catch (_: Exception) {
+                            TransporterControllerV1(TransporterCtrlUsesPort_v1Helper.unchecked_narrow(port))
+                        }
+                    }
+
+                    println("Connected new port ${transporter.name}")
+                    thread {
+                        if (!port._non_existent()) {
+                            println("Send test signal")
+                            transporter.sendTest()
+                        }
                     }
                 }
 
-                println("Connected new port ${transporter.name}")
-                thread {
-                    if (!port._non_existent()) {
-                        println("Send test signal")
-                        transporter.sendTest()
-                    }
-                }
+                else -> throw UnknownPort()
             }
-
             else -> throw UnknownPort()
         }
     }

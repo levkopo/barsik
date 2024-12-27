@@ -4,7 +4,7 @@ import CF.*
 import ru.levkopo.barsik.emu.poa.application.ApplicationImpl
 
 class ApplicationFactoryImpl(
-    val rootPOA: org.omg.PortableServer.POA,
+    private val rootPOA: org.omg.PortableServer.POA,
 ) : ApplicationFactoryPOA() {
     override fun create(appConfig: AppConfig): Application {
         println("Creating a factory: " +

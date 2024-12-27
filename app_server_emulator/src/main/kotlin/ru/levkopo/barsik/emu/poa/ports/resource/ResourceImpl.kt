@@ -14,7 +14,9 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 
-class ResourceImpl(val applicationImpl: ApplicationImpl) : ResourcePOA() {
+class ResourceImpl(
+    private val application: ApplicationImpl
+) : ResourcePOA() {
     override fun _invoke(method: String?, _input: InputStream?, handler: ResponseHandler): OutputStream {
         if (method == "query") {
             val data =
@@ -33,9 +35,9 @@ class ResourceImpl(val applicationImpl: ApplicationImpl) : ResourcePOA() {
         return super._invoke(method, _input, handler)
     }
 
-    override fun query(a: Int, type: String): SigBoardInfo3 = applicationImpl.getSigBoardInfo()
+    override fun query(a: Int, type: String): SigBoardInfo3 = application.getSigBoardInfo()
 
-    override fun getPort(type: String): AbstractPort = applicationImpl.getPort(type)
+    override fun getPort(type: String): AbstractPort = application.getPort(type)
 
     override fun releaseObject() {
         println("Released resource")

@@ -13,6 +13,7 @@ class ApplicationImpl(
     val rootPOA: POA,
     val appConfig: AppConfig,
 ) : ApplicationPOA() {
+    private val connectedPorts = HashMap<String, AbstractPort>()
     /*
 1,
 1,
@@ -37,6 +38,7 @@ intArrayOf(),
 //        ),
 //        AttenuatorSet()
  */
+
     private val sigBoardInfoPOA = object : SigBoardInfo3 {
         override fun IdRcv(): Int = 1
         override fun IdCon(): Int = 1
@@ -67,6 +69,11 @@ intArrayOf(),
         override fun allGroupRangeBands(): IntArray = intArrayOf(0)
     }
 
+    fun getConnectedPort(type: String) = connectedPorts[type]
+    fun connectPort(type: String, port: AbstractPort) {
+        connectedPorts[type] = port
+    }
+
     internal fun getSigBoardInfo(): SigBoardInfo3 {
         return sigBoardInfoPOA
     }
@@ -75,8 +82,8 @@ intArrayOf(),
         println("Required port: $type")
         val (servant, narrow) = when (type) {
             "Scheduler" -> ResourceImpl(this) to ResourceHelper::narrow
-            "TransporterCtrlPort" -> TransporterCtrlUsesPortImpl(rootPOA) to TransporterCtrlUsesPort_v3Helper::narrow
-            "TransporterDataPort" -> TransporterDataPortImpl(rootPOA) to TransporterDataPortHelper::narrow
+            "TransporterCtrlPort" -> TransporterCtrlUsesPortImpl(this) to TransporterCtrlUsesPort_v3Helper::narrow
+            "TransporterDataPort" -> TransporterDataPortImpl(this) to TransporterDataPortHelper::narrow
             else -> throw UnknownPort("Unknown port: $type")
         }
 
