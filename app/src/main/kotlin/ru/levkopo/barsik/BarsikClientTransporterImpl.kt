@@ -27,7 +27,7 @@ class BarsikClientTransporterImpl(
         TODO("Not yet implemented")
     }
 
-    override fun releaseFifo(): Int {
+    override fun releaseFifo() {
         TODO("Not yet implemented")
     }
 }

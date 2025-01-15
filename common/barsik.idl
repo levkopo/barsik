@@ -1,3 +1,20 @@
+module CF
+{
+    struct DataType {
+        string id;
+        any value;
+    };
+
+    typedef sequence <DataType> Properties;
+
+    struct DeviceAssignmentType {
+        string componentId;
+        string assignedDeviceId;
+    };
+
+    typedef sequence <DeviceAssignmentType> DeviceAssignmentSequence;
+};
+
 module DSP
 {
   struct KeyVal {
@@ -14,15 +31,15 @@ module DSP
         unsigned long maxFreq;
     };
 
-    typedef sequence<att_entry_t> AttEntrySeq;
-
+//
     struct band_t {
+        unsigned long id;
         unsigned long begfreq;
         unsigned long endfreq;
-        AttEntrySeq values;
     };
 
     typedef sequence<band_t> BandSeq;
+    typedef sequence<att_entry_t> AttEntrySeq;
     typedef sequence<unsigned long> RangeBands_seq;
     typedef sequence<unsigned long> SampleFreqs_seq;
     typedef sequence<unsigned long> Filters_seq;
@@ -33,6 +50,7 @@ module DSP
 
     struct AttenuatorSet {
         BandSeq bands;
+        AttEntrySeq values;
     };
 
     struct MapEntry {
@@ -40,18 +58,18 @@ module DSP
         unsigned long value;
     };
 
-    abstract interface SigBoardInfo3 {
-        readonly attribute unsigned long IdRcv;
-        readonly attribute unsigned long IdCon;
-        readonly attribute unsigned long IdSwt;
-        readonly attribute Filters_seq filters;
-        readonly attribute SampleFreqs_seq simpleFreq;
-        readonly attribute RangeBands_seq rangeBands;
-        readonly attribute WatchTimes_seq watchTimes;
-        readonly attribute WinParams_seq winParams;
-        readonly attribute AttenuatorSet attenuator;
-        readonly attribute AllGroupRangeBands_seq allGroupRangeBands;
-    };
+         struct SigBoardInfo3 {
+            unsigned long IdRcv;
+            unsigned long IdCon;
+            unsigned long IdSwt;
+            Filters_seq filters;
+            SampleFreqs_seq simpleFreq;
+            RangeBands_seq rangeBands;
+            WatchTimes_seq watchTimes;
+            WinParams_seq winParams;
+            AttenuatorSet attenuator;
+            AllGroupRangeBands_seq allGroupRangeBands;
+        };
 };
 
 module CF
@@ -78,10 +96,7 @@ module CF
     };
 
     interface Resource: AbstractPort, PortSupplier::Supplier {
-        DSP::SigBoardInfo3 query(
-            in unsigned long a,
-            in string type
-        );
+        void query(inout Properties o);
         oneway void releaseObject();
     };
 
@@ -89,20 +104,12 @@ module CF
         void releaseObject();
     };
 
-    struct AppConfig {
-        string task;
-        unsigned long a;
-        string type;
-        unsigned long b;
-        unsigned long c;
-        string path;
-        unsigned long d;
-        unsigned long f;
-        unsigned long e;
-    };
-
     interface ApplicationFactory {
-        CF::Application create(in AppConfig config);
+        CF::Application create(
+            in string name,
+            in Properties initConfiguration,
+            in DeviceAssignmentSequence deviceAssignments
+        );
     };
 };
 

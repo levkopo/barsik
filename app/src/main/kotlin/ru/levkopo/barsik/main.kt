@@ -21,13 +21,11 @@ private val mainCoroutineScope = CoroutineScope(Dispatchers.Main)
 fun main() {
     showSplash()
 
-    UIManager.setLookAndFeel(MaterialLookAndFeel(MaterialOceanicTheme()))
-
     val mainFrame = JFrame("Барсик")
     mainFrame.defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
-    mainFrame.size = Dimension(800, 600)
+    mainFrame.size = Dimension(900, 900)
     mainFrame.isResizable = false
-    mainFrame.maximumSize = Dimension(800, 600)
+    mainFrame.maximumSize = Dimension(900, 900)
     mainFrame.isVisible = true
 
     val mainBox = Box.createHorizontalBox()

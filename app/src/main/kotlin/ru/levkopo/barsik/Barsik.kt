@@ -44,30 +44,30 @@ class Barsik {
         val transporter = transporterFlow.value!!
         println("")
 
-        transporter.SendSignalMessage(
-            SignalMessage(
-                4.4262274E-317,
-                0.0,
-                3.6476116E-317,
-                Signals(1374923778, 143957360, 22095344, 3025572, 0, 1094616192, 1148846080, 1008981770),
-                0,
-                1,
-                1,
-                8,
-                packetCount,
-                false,
-                1,
-                true,
-                false,
-                0.0,
-                0.0,
-                0.0,
-                0,
-                186,
-                1,
-                1
-            )
-        )
+//        transporter.SendSignalMessage(
+//            SignalMessage(
+//                4.4262274E-317,
+//                0.0,
+//                3.6476116E-317,
+//                Signals(1374923778, 143957360, 22095344, 3025572, 0, 1094616192, 1148846080, 1008981770),
+//                0,
+//                1,
+//                1,
+//                8,
+//                packetCount,
+//                false,
+//                1,
+//                true,
+//                false,
+//                0.0,
+//                0.0,
+//                0.0,
+//                0,
+//                186,
+//                1,
+//                1
+//            )
+//        )
     }
 
     fun startSend(
@@ -153,28 +153,28 @@ class Barsik {
                     _transporterFlow.value =
                         TransporterCtrlUsesPort_v2Helper.narrow(scheduler.getPort("TransporterCtrlPort"))
 
-                    val transporterDataPort =
-                        PortHelper.narrow(scheduler.getPort("TransporterDataPort"))
-                    transporterDataPort.connectPort(
-                        PortHelper.unchecked_narrow(
-                            poa.servant_to_reference(
-                                clientTransporter
-                            )
-                        ),
-                        0,
-                        1,
-                        36,
-                        1,
-                        1,
-                        1,
-                        20,
-                        1,
-                        65537,
-                        0,
-                        65801,
-                        0,
-                        "DataConnection"
-                    )
+//                    val transporterDataPort =
+//                        PortHelper.narrow(scheduler.getPort("TransporterDataPort"))
+//                    transporterDataPort.connectPort(
+//                        PortHelper.unchecked_narrow(
+//                            poa.servant_to_reference(
+//                                clientTransporter
+//                            )
+//                        ),
+//                        0,
+//                        1,
+//                        36,
+//                        1,
+//                        1,
+//                        1,
+//                        20,
+//                        1,
+//                        65537,
+//                        0,
+//                        65801,
+//                        0,
+//                        "DataConnection"
+//                    )
                 }.onFailure {
                     it.printStackTrace()
                     _connectionStateFlow.value = ConnectionState.ERROR(it)
