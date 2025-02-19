@@ -2,6 +2,7 @@ package ru.levkopo.barsik
 
 import DSP.SignalMessage
 import DSP.TransporterCtrlUsesPort_v3POA
+import org.omg.CORBA.Any
 
 class BarsikClientTransporterImpl(
     val collector: (SignalMessage) -> Unit,
@@ -11,8 +12,8 @@ class BarsikClientTransporterImpl(
         testComplete()
     }
 
-    override fun SendSignalMessage(message: SignalMessage) {
-        collector(message)
+    override fun SendSignalMessage(message: Any?) {
+        println(message)
     }
 
     override fun SendPowerPhaseQuery(): Int {

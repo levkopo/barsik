@@ -90,8 +90,8 @@ module CF
 
     interface Port: AbstractPort {
         void connectPort(
-                    in AbstractPort port,
-                    in string type
+            in Object connection,
+            in string connectionId
         ) raises (CF::PortSupplier::UnknownPort);
     };
 
@@ -148,11 +148,15 @@ module DSP {
         unsigned long ah;
     };
 
-    interface TransporterCtrlUsesPort_v1: CF::AbstractPort {
-        oneway void SendTest();
-        oneway void SendSignalMessage(
-            in SignalMessage message
-        );
+    interface TransporterCtrlUsesPort: CF::AbstractPort {
+    oneway void SendTest();
+            oneway void SendSignalMessage(
+                in any message
+            );
+    };
+
+    interface TransporterCtrlUsesPort_v1: TransporterCtrlUsesPort {
+
     };
 
     interface TransporterCtrlUsesPort_v2: TransporterCtrlUsesPort_v1 {

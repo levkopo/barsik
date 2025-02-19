@@ -12,6 +12,7 @@ import org.omg.CosNaming.NameComponent
 import org.omg.CosNaming.NamingContextHelper
 import org.omg.PortableServer.POAHelper
 import java.io.PrintStream
+import kotlin.concurrent.thread
 
 class Barsik {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -22,8 +23,10 @@ class Barsik {
     private val _connectionStateFlow = MutableStateFlow<ConnectionState>(ConnectionState.IDLE)
     val connectionStateFlow: StateFlow<ConnectionState> = _connectionStateFlow.asStateFlow()
 
-    private val _transporterFlow = MutableStateFlow<TransporterCtrlUsesPort_v2?>(null)
-    val transporterFlow: StateFlow<TransporterCtrlUsesPort_v2?> = _transporterFlow.asStateFlow()
+    private val _transporterFlow = MutableStateFlow<TransporterCtrlUsesPort?>(null)
+    val transporterFlow: StateFlow<TransporterCtrlUsesPort?> = _transporterFlow.asStateFlow()
+
+    private var orb: ORB? = null
 
     private var packetCount = 1
     private var frequency = 0.0
@@ -43,30 +46,45 @@ class Barsik {
     private fun sendSignalMessage() {
         val transporter = transporterFlow.value!!
         println("")
+        val any = orb!!.create_any()
+        val outputStream = any.create_output_stream()
+        "0000007910cfb94100000000000000000000000060e3464102acf351c8243a05f0255101a42a2e000000000080843e4100007a440ad7233c000000000100000001000000080000000100000000000000010000000100000000000000000000000000000000000000000000000000000000000000ba0000000100000001000000"
+            .chunked(2)
+            .map { it.toInt(16).toByte() }
+            .toByteArray()
+            .forEach {
+                outputStream.write_octet(it)
+            }
+
+        transporter._request("SendSignalMessage").apply {
+            
+        }
+
+        transporter.SendSignalMessage(any)
 
 //        transporter.SendSignalMessage(
-//            SignalMessage(
-//                4.4262274E-317,
-//                0.0,
-//                3.6476116E-317,
-//                Signals(1374923778, 143957360, 22095344, 3025572, 0, 1094616192, 1148846080, 1008981770),
-//                0,
-//                1,
-//                1,
-//                8,
-//                packetCount,
-//                false,
-//                1,
-//                true,
-//                false,
-//                0.0,
-//                0.0,
-//                0.0,
-//                0,
-//                186,
-//                1,
-//                1
-//            )
+////            SignalMessage(
+////                4.4262274E-317,
+////                0.0,
+////                3.6476116E-317,
+////                Signals(1374923778, 143957360, 22095344, 3025572, 0, 1094616192, 1148846080, 1008981770),
+////                0,
+////                1,
+////                1,
+////                8,
+////                packetCount,
+////                false,
+////                1,
+////                true,
+////                false,
+////                0.0,
+////                0.0,
+////                0.0,
+////                0,
+////                186,
+////                1,
+////                1
+////            )
 //        )
     }
 
@@ -111,6 +129,8 @@ class Barsik {
                 outputStream.flush()
 
                 delay(1000)
+
+                client.disconnect()
             }.onSuccess {
                 runCatching {
                     val orb = ORB.init(
@@ -119,6 +139,8 @@ class Barsik {
                         ) + Config.orbInitialParameters,
                         Config.orbProperties
                     )
+
+                    this@Barsik.orb = orb
 
                     val poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"))
                     poa.the_POAManager().activate()
@@ -133,48 +155,44 @@ class Barsik {
                     )
 
                     val factory = ApplicationFactoryHelper.narrow(ncRef.resolve(components))
+                    val profile = orb.create_any()
+                    profile.insert_string("acenter.conf/sad.xml")
+
                     val application = factory.create(
-                        AppConfig(
-                            "SNTest",
-                            1,
-                            "profile",
-                            18,
-                            0,
-                            "acenter.conf/sad.xml",
-                            0,
-                            0,
-                            0
-                        )
+                        "SNTest",
+                        arrayOf(
+                            DataType("profile", profile)
+                        ),
+                        arrayOf()
                     )
 
 
                     val scheduler = ResourceHelper.narrow(application.getPort("Scheduler"))
 
-                    _transporterFlow.value =
-                        TransporterCtrlUsesPort_v2Helper.narrow(scheduler.getPort("TransporterCtrlPort"))
+                    val systemInfo = orb.create_any()
+                    val result = PropertiesHolder(
+                        arrayOf(
+                            DataType("SigBoardInfo3", systemInfo),
+                        )
+                    )
 
-//                    val transporterDataPort =
-//                        PortHelper.narrow(scheduler.getPort("TransporterDataPort"))
-//                    transporterDataPort.connectPort(
-//                        PortHelper.unchecked_narrow(
-//                            poa.servant_to_reference(
-//                                clientTransporter
-//                            )
-//                        ),
-//                        0,
-//                        1,
-//                        36,
-//                        1,
-//                        1,
-//                        1,
-//                        20,
-//                        1,
-//                        65537,
-//                        0,
-//                        65801,
-//                        0,
-//                        "DataConnection"
-//                    )
+                    scheduler.query(result)
+
+                    println("${SigBoardInfo3Helper.extract(result.value[0].value)}")
+
+                    _transporterFlow.value =
+                        TransporterCtrlUsesPortHelper.narrow(scheduler.getPort("TransporterCtrlPort"))
+
+                    val transporterDataPort =
+                        PortHelper.narrow(scheduler.getPort("TransporterDataPort"))
+                    transporterDataPort.connectPort(
+                        PortHelper.unchecked_narrow(
+                            poa.servant_to_reference(
+                                clientTransporter
+                            )
+                        ),
+                        "DataConnection"
+                    )
                 }.onFailure {
                     it.printStackTrace()
                     _connectionStateFlow.value = ConnectionState.ERROR(it)
@@ -187,7 +205,7 @@ class Barsik {
     }
 
     fun disconnect() {
-        _transporterFlow.value!!._get_orb().shutdown(false)
+//        _transporterFlow.value!!._get_orb().shutdown(false)
         _connectionStateFlow.value = ConnectionState.IDLE
         client.disconnect()
     }
