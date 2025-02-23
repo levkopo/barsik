@@ -25,28 +25,26 @@ module DSP
 
     struct att_entry_t {
         unsigned long band_id;
-        unsigned long att;
-        unsigned long ChanCount;
-        unsigned long minFreq;
-        unsigned long maxFreq;
+        double freq;
     };
 
-//
+    typedef sequence<att_entry_t> AttEntrySeq;
+
     struct band_t {
         unsigned long id;
-        unsigned long begfreq;
-        unsigned long endfreq;
+        double begfreq;
+        double endfreq;
     };
 
     typedef sequence<band_t> BandSeq;
-    typedef sequence<att_entry_t> AttEntrySeq;
-    typedef sequence<unsigned long> RangeBands_seq;
-    typedef sequence<unsigned long> SampleFreqs_seq;
-    typedef sequence<unsigned long> Filters_seq;
-    typedef sequence<unsigned long> WatchTimes_seq;
-    typedef sequence<unsigned long> WinParams_seq;
-    typedef sequence<unsigned long> SuperRangeBands_seq;
-    typedef sequence<unsigned long> AllGroupRangeBands_seq;
+    typedef sequence<float> Filters_seq; // Точно float
+
+    typedef sequence<float> RangeBands_seq;
+    typedef sequence<float> SampleFreqs_seq;
+    typedef sequence<float> WatchTimes_seq;
+    typedef sequence<float> WinParams_seq;
+    typedef sequence<float> SuperRangeBands_seq;
+    typedef sequence<float> AllGroupRangeBands_seq;
 
     struct AttenuatorSet {
         BandSeq bands;
@@ -59,15 +57,20 @@ module DSP
     };
 
          struct SigBoardInfo3 {
-            unsigned long IdRcv;
-            unsigned long IdCon;
-            unsigned long IdSwt;
-            Filters_seq filters;
+            string IdRcv;
+            string IdCon;
+            string IdSwt;
+
+            Filters_seq filters; // точно здесь
             SampleFreqs_seq simpleFreq;
             RangeBands_seq rangeBands;
             WatchTimes_seq watchTimes;
             WinParams_seq winParams;
+            WinParams_seq idk;
             AttenuatorSet attenuator;
+            short a;
+            double minFreq;
+            double maxFreq;
             AllGroupRangeBands_seq allGroupRangeBands;
         };
 };
@@ -114,45 +117,66 @@ module CF
 };
 
 module DSP {
-    struct Signals {
-        unsigned long a;
-        unsigned long b;
-        unsigned long c;
-        unsigned long d;
-        unsigned long e;
-        unsigned long f;
-        unsigned long g;
-        unsigned long h;
+    struct GenericSignalParams {
+        double freq; // Частота в герцах
+        short attenuator; // Аттенюатор
+        double c;
+        double d;
+        double f;
+        double width; // Ширина спектра в герцах
+        float filter; // Используемый фильтр
+        float w;
+        unsigned long ae;
+        unsigned long channel; // Канал
+        sequence<octet> octets;
     };
 
-    struct SignalMessage {
-        double frequency;
-        double attenuator;
-        double width;
-        Signals signals_;
-        unsigned long aaa;
-        unsigned long aab;
-        unsigned long aac;
-        unsigned long aad;
-        unsigned long packetNumber;
-        boolean b;
+    struct iq {
+        float i;
+        float q;
+    };
+
+    struct short_iq {
+        short i;
+        short q;
+    };
+
+    typedef sequence<iq> IqSeq;
+    typedef sequence<short_iq> ShortIqSeq;
+
+    struct PowerPhase {
+        sequence<octet> angles;
+        sequence<octet> b;
         long c;
-        boolean d;
-        boolean f;
-        double aa;
-        double ab;
-        double ac;
-        unsigned long ae;
-        unsigned long af;
-        unsigned long ag;
-        unsigned long ah;
+    };
+
+    struct SignalRep {
+        boolean test;
+    };
+
+    struct SignalDataEx {
+        ShortIqSeq a;
+        IqSeq b;
+        IqSeq c;
+        PowerPhase power;
+//        SignalRep rep;
+    };
+
+    struct SignalMsg {
+        GenericSignalParams params;
+        unsigned long a;
+        unsigned long b;
+        boolean c;
+        long d;
+        long dd;
+        boolean ddd;
+        SignalDataEx extended;
+        any data;
     };
 
     interface TransporterCtrlUsesPort: CF::AbstractPort {
-    oneway void SendTest();
-            oneway void SendSignalMessage(
-                in any message
-            );
+        oneway void SendTest();
+        oneway void SendSignalMessage(in SignalMsg message);//
     };
 
     interface TransporterCtrlUsesPort_v1: TransporterCtrlUsesPort {

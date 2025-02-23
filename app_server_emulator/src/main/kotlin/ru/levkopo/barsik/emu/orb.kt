@@ -60,7 +60,10 @@ fun launchORBObserver() = mainScope.launch {
                 arrayOf(
                     "-ORBSupportBootstrapAgent", "1",
                 ) + Config.orbInitialParameters,
-                Properties()
+                Properties().apply {
+                    put("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB")
+                    put("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton")
+                }
             )
 
             val rootPoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"))!!
@@ -74,7 +77,7 @@ fun launchORBObserver() = mainScope.launch {
             val objRef = orb.resolve_initial_references("NameService")
             val namingContext = NamingContextExtHelper.narrow(objRef)
 
-            namingContext.bind_or_rebind_context(namingContext.to_name("DSP"), namingContext)
+            namingContext.try_bind_new_context(namingContext.to_name("DSP"))
             namingContext.bind_or_rebind(
                 namingContext.to_name("DSP/NIG-5 Applications"),
                 ApplicationFactoryHelper.narrow(factoryRef)

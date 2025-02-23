@@ -4,14 +4,12 @@ import com.khubla.telnet.TelnetException
 import com.khubla.telnet.auth.AuthenticationHandler
 import com.khubla.telnet.nvt.NVT
 import com.khubla.telnet.shell.AbstractShellImpl
-import com.khubla.telnet.shell.command.TelnetCommandRegistry
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.SocketException
 
 class BarsShellImpl(
     nvt: NVT?,
-    private val telnetCommandRegistry: TelnetCommandRegistry,
     private val authenticationHandler: AuthenticationHandler?
 ): AbstractShellImpl(nvt) {
     private var prompt: String = "at@box:~\$ "
@@ -34,7 +32,7 @@ class BarsShellImpl(
                         prompt = "root@box:/home/at# "
                     }
 
-                    if(inputLine.startsWith("./uhf.sh")) {
+                    if(inputLine.startsWith("./uhf.sh") || inputLine.startsWith(">")) {
                         launchORBD()
                         nvt.writeln("./uhf.sh")
                         nvt.writeln("DoneOk")

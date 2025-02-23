@@ -1,9 +1,16 @@
 package ru.levkopo.barsik.emu.poa.ports.transporters
 
-import DSP.SignalMessage
-import DSP.TransporterCtrlUsesPort_v1Helper
+import DSP.GenericSignalParams
+import DSP.PowerPhase
+import DSP.SignalDataEx
+import DSP.SignalMsg
+import DSP.SignalRep
 import DSP.TransporterCtrlUsesPort_v3POA
+import DSP.iq
+import org.omg.CORBA.TCKind
 import ru.levkopo.barsik.emu.poa.application.ApplicationImpl
+import ru.levkopo.barsik.emu.poa.ports.transporters.TransporterDataPortImpl.TransporterController
+import ru.levkopo.barsik.emu.str
 
 class TransporterCtrlUsesPortImpl(
     private val application: ApplicationImpl
@@ -12,65 +19,59 @@ class TransporterCtrlUsesPortImpl(
         TODO("Not yet implemented")
     }
 
+    override fun SendSignalMessage(message: SignalMsg) {
+        println(message.str())
+        val newMessage = SignalMsg(
+            GenericSignalParams(
+                0.0,
+                0,
+                0.0,
+                0.0,
+                0.0,
+                message.params.width,
+                message.params.filter,
+                message.params.w,
+                message.params.ae,
+                message.params.af,
+                message.params.octets,
+            ),
+            message.a,
+            message.b,
+            message.c,
+            message.d,
+            1,
+            false,
+            SignalDataEx(
+                emptyArray(),
+                emptyArray(),
+                Array(message.params.width.toInt() / 1000) {
+                    iq(0.06f, 0.06f)
+                },
+                PowerPhase(
+                    byteArrayOf(),
+                    byteArrayOf(),
+                    1
+                ),
+//                SignalRep(
+//                    true
+//                )
+            ),
+            _orb().create_any().apply {
+                insert_TypeCode(_orb().get_primitive_tc(TCKind.tk_null))
+            }
+        )
+
+        println(newMessage.str())
+        val port = application.getConnectedPort("DataConnection") as TransporterController
+        port.sendSignalMessage(newMessage)
+    }
+
     override fun SendPowerPhaseQuery(): Int {
         TODO("Not yet implemented")
     }
 
     override fun SendIQSpectrumQuery(): Int {
         TODO("Not yet implemented")
-    }
-
-    override fun SendSignalMessage(message: SignalMessage) {
-        println(with(message) {
-            "SignalMessage{" +
-                    "frequency=" + frequency +
-                    ", attenuator=" + attenuator +
-                    ", width=" + width +
-                    ", signals_=" + signals_ +
-                    ", aaa=" + aaa +
-                    ", aab=" + aab +
-                    ", aac=" + aac +
-                    ", aad=" + aad +
-                    ", packetNumber=" + packetNumber +
-                    ", b=" + b +
-                    ", c=" + c +
-                    ", d=" + d +
-                    ", f=" + f +
-                    ", aa=" + aa +
-                    ", ab=" + ab +
-                    ", ac=" + ac +
-                    ", ae=" + ae +
-                    ", af=" + af +
-                    ", ag=" + ag +
-                    ", ah=" + ah +
-                    '}'
-        })
-
-        val dataPort = TransporterCtrlUsesPort_v1Helper.unchecked_narrow(application.getConnectedPort("DataConnection"))
-        dataPort.SendSignalMessage(
-            SignalMessage(
-                message.frequency,
-                message.attenuator,
-                message.width,
-                message.signals_,
-                message.aaa,
-                message.aab,
-                message.aac,
-                message.aad,
-                message.packetNumber + 1,
-                message.b,
-                message.c,
-                message.d,
-                message.f,
-                message.aa,
-                message.ab,
-                message.ac,
-                message.ae,
-                message.af,
-                message.ag,
-                message.ah,
-            )
-        )
     }
 
     override fun getSigBoardInfo(): Int {

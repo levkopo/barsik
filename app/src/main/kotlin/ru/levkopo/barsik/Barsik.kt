@@ -6,6 +6,8 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import org.apache.commons.net.ProtocolCommandEvent
+import org.apache.commons.net.ProtocolCommandListener
 import org.apache.commons.net.telnet.TelnetClient
 import org.omg.CORBA.ORB
 import org.omg.CosNaming.NameComponent
@@ -125,8 +127,8 @@ class Barsik {
                 outputStream.flush()
                 delay(100)
 
-                outputStream.println("./uhf.sh")
-                outputStream.flush()
+//                outputStream.println("./uhf.sh")
+//                outputStream.flush()
 
                 delay(1000)
 
@@ -135,6 +137,7 @@ class Barsik {
                 runCatching {
                     val orb = ORB.init(
                         arrayOf(
+                            "-ORBSupportBootstrapAgent", "1",
                             "-ORBSupportBootstrapAgent", "1",
                         ) + Config.orbInitialParameters,
                         Config.orbProperties

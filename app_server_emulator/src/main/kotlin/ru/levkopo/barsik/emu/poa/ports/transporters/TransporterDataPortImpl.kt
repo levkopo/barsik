@@ -4,6 +4,7 @@ import CF.AbstractPort
 import CF.Port
 import CF.PortSupplier.UnknownPort
 import DSP.*
+import org.omg.CORBA.Object
 import org.omg.PortableServer.POA
 import ru.levkopo.barsik.emu.poa.application.ApplicationImpl
 import kotlin.concurrent.thread
@@ -11,28 +12,27 @@ import kotlin.concurrent.thread
 class TransporterDataPortImpl(
     private val application: ApplicationImpl
 ) : TransporterDataPortPOA() {
-    override fun connectPort(
-        port: AbstractPort,
-        type: String
-    ) {
-        println("Connecting port: $port, type: $type")
-        application.connectPort(type, port)
-        when(type) {
+
+    override fun connectPort(connection: Object, connectionId: String) {
+        println("Connecting port: $connection, connectionId: $connectionId")
+        when(connectionId) {
             "DataConnection" -> when {
-                port._is_a(TransporterCtrlUsesPort_v1Helper.id()) -> {
+                connection._is_a(TransporterCtrlUsesPort_v1Helper.id()) -> {
                     val transporter: TransporterController = try {
-                        TransporterControllerV3(TransporterCtrlUsesPort_v3Helper.narrow(port))
+                        TransporterControllerV3(TransporterCtrlUsesPort_v3Helper.narrow(connection))
                     } catch (_: Exception) {
                         try {
-                            TransporterControllerV2(TransporterCtrlUsesPort_v2Helper.narrow(port))
+                            TransporterControllerV2(TransporterCtrlUsesPort_v2Helper.narrow(connection))
                         } catch (_: Exception) {
-                            TransporterControllerV1(TransporterCtrlUsesPort_v1Helper.unchecked_narrow(port))
+                            TransporterControllerV1(TransporterCtrlUsesPort_v1Helper.unchecked_narrow(connection))
                         }
                     }
 
+                    application.connectPort(transporter, connectionId)
                     println("Connected new port ${transporter.name}")
+
                     thread {
-                        if (!port._non_existent()) {
+                        if (!connection._non_existent()) {
                             println("Send test signal")
                             transporter.sendTest()
                         }
@@ -44,12 +44,12 @@ class TransporterDataPortImpl(
             else -> throw UnknownPort()
         }
     }
-
     open class TransporterControllerV1(
         val orbTransporter: TransporterCtrlUsesPort_v1
     ) : TransporterController {
         override val name: String = "transporter controller v1"
         override fun sendTest(): Unit = orbTransporter.SendTest()
+        override fun sendSignalMessage(signalMsg: SignalMsg): Unit = orbTransporter.SendSignalMessage(signalMsg)
     }
 
 
@@ -70,5 +70,6 @@ class TransporterDataPortImpl(
     interface TransporterController {
         val name: String
         fun sendTest()
+        fun sendSignalMessage(signalMsg: SignalMsg)
     }
 }

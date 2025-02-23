@@ -3,6 +3,7 @@ package ru.levkopo.barsik.emu.poa.application
 import CF.*
 import CF.PortSupplier.UnknownPort
 import DSP.*
+import org.omg.CORBA.Object
 import org.omg.IOP.IORHelper
 import org.omg.PortableServer.POA
 import ru.levkopo.barsik.emu.poa.ports.resource.ResourceImpl
@@ -14,7 +15,7 @@ class ApplicationImpl(
     private val initConfiguration: Array<out DataType>,
     private val deviceAssignments: Array<out DeviceAssignmentType>
 ) : ApplicationPOA() {
-    private val connectedPorts = HashMap<String, AbstractPort>()
+    private val connectedPorts = HashMap<String, Any>()
 
     init {
         println("Created application: initConfiguration${initConfiguration}: ${initConfiguration.joinToString { "${it.id} - ${it.value.type()} - ${it.value.extract_string()}" }}")
@@ -22,8 +23,8 @@ class ApplicationImpl(
     }
 
     fun getConnectedPort(type: String) = connectedPorts[type]
-    fun connectPort(type: String, port: AbstractPort) {
-        connectedPorts[type] = port
+    fun connectPort(connection: Any, connectionId: String) {
+        connectedPorts[connectionId] = connection
     }
 
     override fun getPort(type: String): AbstractPort {
