@@ -52,9 +52,9 @@ class TransporterCtrlUsesPortImpl(
                     byteArrayOf(),
                     1
                 ),
-//                SignalRep(
-//                    true
-//                )
+                SignalRep(
+                    -70
+                )
             ),
             _orb().create_any().apply {
                 insert_TypeCode(_orb().get_primitive_tc(TCKind.tk_null))

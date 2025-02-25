@@ -147,11 +147,11 @@ module DSP {
     struct PowerPhase {
         sequence<octet> angles;
         sequence<octet> b;
-        long c;
+        octet c;
     };
 
     struct SignalRep {
-        boolean test;
+        octet test;
     };
 
     struct SignalDataEx {
@@ -159,7 +159,7 @@ module DSP {
         IqSeq b;
         IqSeq c;
         PowerPhase power;
-//        SignalRep rep;
+        SignalRep rep;
     };
 
     struct SignalMsg {
