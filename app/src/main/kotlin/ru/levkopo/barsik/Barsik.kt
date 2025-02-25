@@ -36,8 +36,6 @@ class Barsik {
     private var width = 0.0
     private val clientTransporter = BarsikClientTransporterImpl(
         collector = { message ->
-            println(message.makeString())
-            packetCount = message.packetNumber + 1
             sendSignalMessage()
         },
         testComplete = {
@@ -47,22 +45,21 @@ class Barsik {
 
     private fun sendSignalMessage() {
         val transporter = transporterFlow.value!!
-        println("")
-        val any = orb!!.create_any()
-        val outputStream = any.create_output_stream()
-        "0000007910cfb94100000000000000000000000060e3464102acf351c8243a05f0255101a42a2e000000000080843e4100007a440ad7233c000000000100000001000000080000000100000000000000010000000100000000000000000000000000000000000000000000000000000000000000ba0000000100000001000000"
-            .chunked(2)
-            .map { it.toInt(16).toByte() }
-            .toByteArray()
-            .forEach {
-                outputStream.write_octet(it)
-            }
-
-        transporter._request("SendSignalMessage").apply {
-            
-        }
-
-        transporter.SendSignalMessage(any)
+//        val any = orb!!.create_any()
+//        val outputStream = any.create_output_stream()
+//        "0000007910cfb94100000000000000000000000060e3464102acf351c8243a05f0255101a42a2e000000000080843e4100007a440ad7233c000000000100000001000000080000000100000000000000010000000100000000000000000000000000000000000000000000000000000000000000ba0000000100000001000000"
+//            .chunked(2)
+//            .map { it.toInt(16).toByte() }
+//            .toByteArray()
+//            .forEach {
+//                outputStream.write_octet(it)
+//            }
+//
+//        transporter._request("SendSignalMessage").apply {
+//
+//        }
+//
+//        transporter.SendSignalMessage()
 
 //        transporter.SendSignalMessage(
 ////            SignalMessage(
@@ -127,8 +124,8 @@ class Barsik {
                 outputStream.flush()
                 delay(100)
 
-//                outputStream.println("./uhf.sh")
-//                outputStream.flush()
+                outputStream.println("./uhf.sh")
+                outputStream.flush()
 
                 delay(1000)
 

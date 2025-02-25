@@ -32,7 +32,7 @@ class TransporterCtrlUsesPortImpl(
                 message.params.filter,
                 message.params.w,
                 message.params.ae,
-                message.params.af,
+                message.params.channel,
                 message.params.octets,
             ),
             message.a,

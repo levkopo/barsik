@@ -1,9 +1,11 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 
 plugins {
     kotlin("jvm") version "2.0.21"
+    id("org.jetbrains.kotlin.plugin.compose")
+    id("org.jetbrains.compose")
 }
 
 group = "ru.levkopo.barsik"
@@ -15,11 +17,28 @@ configurations {
 
 sourceSets {
     this.getByName("main").java.srcDirs("build/generated/sources/jacorbIDL")
-//    this.getByName("main").resources.srcDirs("src/main/resources")
+}
+
+compose.desktop {
+    application {
+        mainClass = "zation.server.api.MainKt"
+
+        nativeDistributions {
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            packageName = "KotlinJvmComposeDesktopApplication"
+            packageVersion = "1.0.0"
+        }
+    }
 }
 
 dependencies {
+    // Add common library
     implementation(project(":common"))
+
+    // Add compose
+    implementation(compose.desktop.currentOs)
+    implementation(compose.material3)
+
     implementation("commons-net:commons-net:3.11.1")
     implementation("org.jboss.spec.javax.rmi:jboss-rmi-api_1.0_spec:1.0.6.Final")
     implementation("org.jacorb:jacorb:3.2")
@@ -50,6 +69,7 @@ tasks.withType<Tar> {
 
 repositories {
     mavenCentral()
+    google()
     maven(url = "https://oss.sonatype.org/content/repositories/")
 }
 

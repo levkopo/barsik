@@ -1,18 +1,17 @@
 package ru.levkopo.barsik
 
-import DSP.SignalMessage
+import DSP.SignalMsg
 import DSP.TransporterCtrlUsesPort_v3POA
-import org.omg.CORBA.Any
 
 class BarsikClientTransporterImpl(
-    val collector: (SignalMessage) -> Unit,
+    val collector: (SignalMsg) -> Unit,
     val testComplete: () -> Unit
 ): TransporterCtrlUsesPort_v3POA() {
     override fun SendTest() {
         testComplete()
     }
 
-    override fun SendSignalMessage(message: Any?) {
+    override fun SendSignalMessage(message: SignalMsg) {
         println(message)
     }
 

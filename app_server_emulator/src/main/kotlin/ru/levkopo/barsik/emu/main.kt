@@ -65,7 +65,7 @@ fun SignalMsg.str(): String = with (this) {
                 ",\n filter=" + filter +
                 ",\n w=" + w +
                 ",\n ae=" + ae +
-                ",\n af=" + af +
+                ",\n channel=" + channel +
                 ",\n octets=" + octets.contentToString() +
                 '}';
     } +
