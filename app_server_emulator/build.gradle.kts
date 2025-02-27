@@ -4,12 +4,18 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "2.0.21"
+    id("org.jetbrains.kotlin.plugin.compose")
+    id("org.jetbrains.compose")
 }
 
 group = "ru.levkopo.barsik.emu"
 version = "0.1"
 
 dependencies {
+    // Add compose
+    implementation(compose.desktop.currentOs)
+    implementation(compose.material3)
+
     implementation(project(":common"))
     implementation("com.khubla.ktelnet:ktelnet:1.1")
 }
@@ -28,6 +34,8 @@ tasks.jar {
 
 repositories {
     mavenCentral()
+    google()
+    maven(url = "https://oss.sonatype.org/content/repositories/")
 }
 
 java {

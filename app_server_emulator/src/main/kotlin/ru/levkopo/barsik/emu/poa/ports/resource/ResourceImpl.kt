@@ -1,17 +1,12 @@
 package ru.levkopo.barsik.emu.poa.ports.resource
 
 import CF.AbstractPort
-import CF.DataType
 import CF.PropertiesHolder
 import CF.ResourcePOA
 import DSP.AttenuatorSet
 import DSP.SigBoardInfo3
 import DSP.SigBoardInfo3Helper
-import DSP.SigBoardInfo3Holder
 import DSP.band_t
-import com.sun.corba.se.impl.corba.AnyImpl
-import org.omg.CORBA.AnyHolder
-import org.omg.CORBA.TCKind
 import ru.levkopo.barsik.emu.UnsafeUtils
 import ru.levkopo.barsik.emu.UnsafeUtils.BYTES_OFFSET
 import ru.levkopo.barsik.emu.poa.application.ApplicationImpl

@@ -6,8 +6,9 @@ import DSP.SignalDataEx
 import DSP.SignalMsg
 import DSP.SignalRep
 import DSP.TransporterCtrlUsesPort_v3POA
-import DSP.iq
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.omg.CORBA.TCKind
+import ru.levkopo.barsik.emu.Modulator
 import ru.levkopo.barsik.emu.poa.application.ApplicationImpl
 import ru.levkopo.barsik.emu.poa.ports.transporters.TransporterDataPortImpl.TransporterController
 import ru.levkopo.barsik.emu.str
@@ -15,56 +16,69 @@ import ru.levkopo.barsik.emu.str
 class TransporterCtrlUsesPortImpl(
     private val application: ApplicationImpl
 ) : TransporterCtrlUsesPort_v3POA() {
+    companion object {
+        val inputMessage = MutableStateFlow("")
+        val outputMessage = MutableStateFlow("")
+        val modulator = Modulator()
+    }
+
     override fun SendTest() {
         TODO("Not yet implemented")
     }
 
     override fun SendSignalMessage(message: SignalMsg) {
-        println(message.str())
+        modulator.carrierFrequency = message.params.freq - message.params.width / 2
+        inputMessage.tryEmit(message.str())
+
         val newMessage = SignalMsg(
             GenericSignalParams(
-                0.0,
+                when(message.packetNumber){
+                    0 -> message.params.freq
+                    else -> 0.0
+                },
                 0,
                 0.0,
                 0.0,
                 0.0,
                 message.params.width,
                 message.params.filter,
-                message.params.w,
+                message.params.qualityPhase,
                 message.params.ae,
                 message.params.channel,
                 message.params.octets,
             ),
-            message.a,
+            message.packetNumber,
             message.b,
             message.c,
             message.d,
             1,
             false,
             SignalDataEx(
-                emptyArray(),
-                emptyArray(),
-                Array(message.params.width.toInt() / 1000) {
-                    iq(0.06f, 0.06f)
-                },
+                arrayOf(),
+                arrayOf(),
+                Array((message.params.width / 1000).toInt()) {
+                    modulator.currentIQ
+                }.flatten().toTypedArray(),
                 PowerPhase(
                     byteArrayOf(),
                     byteArrayOf(),
                     1
                 ),
                 SignalRep(
-                    -70
+                    1
                 )
             ),
             _orb().create_any().apply {
-                insert_TypeCode(_orb().get_primitive_tc(TCKind.tk_null))
+                type(_orb().get_primitive_tc(TCKind.tk_void))
             }
         )
 
-        println(newMessage.str())
         val port = application.getConnectedPort("DataConnection") as TransporterController
+        Thread.sleep(10)
         port.sendSignalMessage(newMessage)
+        outputMessage.tryEmit(newMessage.str())
     }
+
 
     override fun SendPowerPhaseQuery(): Int {
         TODO("Not yet implemented")

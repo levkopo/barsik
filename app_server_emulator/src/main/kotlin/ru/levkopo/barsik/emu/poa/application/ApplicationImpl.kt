@@ -31,6 +31,7 @@ class ApplicationImpl(
         println("Required port: $type")
         val (servant, narrow) = when (type) {
             "Scheduler" -> ResourceImpl(this) to ResourceHelper::narrow
+            "DFOutConnection" -> ResourceImpl(this) to ResourceHelper::narrow
             "TransporterCtrlPort" -> TransporterCtrlUsesPortImpl(this) to TransporterCtrlUsesPort_v3Helper::narrow
             "TransporterDataPort" -> TransporterDataPortImpl(this) to TransporterDataPortHelper::narrow
             else -> throw UnknownPort("Unknown port: $type")

@@ -21,13 +21,15 @@ private val mainScope = CoroutineScope(Dispatchers.IO)
 private val orbdProcessFlow = MutableStateFlow<Process?>(null)
 private val runtime = Runtime.getRuntime()
 
+const val JVM18_PATH = "/home/levkopo/.jdks/liberica-full-1.8.0_442"
+
 val orbFlow = MutableStateFlow<ORB?>(null)
 
 fun launchORBD() = mainScope.launch {
     orbdProcessFlow.value?.destroyForcibly()
     orbdProcessFlow.value = null
 
-    val orbdStartup = arrayOf(System.getProperty("java.home") + "/bin/orbd") + Config.orbInitialParameters
+    val orbdStartup = arrayOf("$JVM18_PATH/bin/orbd") + Config.orbInitialParameters
     println("Starting ORB daemon: ${orbdStartup.joinToString(" ")}")
 
     val process = runtime.exec(orbdStartup)

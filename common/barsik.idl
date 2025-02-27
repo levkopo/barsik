@@ -38,9 +38,8 @@ module DSP
 
     typedef sequence<band_t> BandSeq;
     typedef sequence<float> Filters_seq; // Точно float
-
-    typedef sequence<float> RangeBands_seq;
     typedef sequence<float> SampleFreqs_seq;
+    typedef sequence<float> RangeBands_seq;
     typedef sequence<float> WatchTimes_seq;
     typedef sequence<float> WinParams_seq;
     typedef sequence<float> SuperRangeBands_seq;
@@ -66,7 +65,7 @@ module DSP
             RangeBands_seq rangeBands;
             WatchTimes_seq watchTimes;
             WinParams_seq winParams;
-            WinParams_seq idk;
+            SuperRangeBands_seq superRangeBands;
             AttenuatorSet attenuator;
             short a;
             double minFreq;
@@ -125,7 +124,7 @@ module DSP {
         double f;
         double width; // Ширина спектра в герцах
         float filter; // Используемый фильтр
-        float w;
+        float qualityPhase;
         unsigned long ae;
         unsigned long channel; // Канал
         sequence<octet> octets;
@@ -151,20 +150,21 @@ module DSP {
     };
 
     struct SignalRep {
-        octet test;
+        long test;
     };
 
     struct SignalDataEx {
         ShortIqSeq a;
         IqSeq b;
         IqSeq c;
+
         PowerPhase power;
         SignalRep rep;
     };
 
     struct SignalMsg {
         GenericSignalParams params;
-        unsigned long a;
+        unsigned long packetNumber; // Номер пакета
         unsigned long b;
         boolean c;
         long d;
