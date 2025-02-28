@@ -1,4 +1,4 @@
-package ru.levkopo.barsik.emu
+package ru.levkopo.barsik.emu.ui
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.Column
@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import ru.levkopo.barsik.emu.launchORBD
 import ru.levkopo.barsik.emu.poa.ports.transporters.TransporterCtrlUsesPortImpl
 
 @Preview

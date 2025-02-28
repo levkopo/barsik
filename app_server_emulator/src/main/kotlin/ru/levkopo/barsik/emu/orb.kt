@@ -12,8 +12,10 @@ import kotlinx.coroutines.sync.withLock
 import org.omg.CORBA.ORB
 import org.omg.CosNaming.NamingContextExtHelper
 import org.omg.PortableServer.POAHelper
-import ru.levkopo.barsik.Config
+import ru.levkopo.barsik.configs.ORBConfig
 import ru.levkopo.barsik.emu.poa.factory.ApplicationFactoryImpl
+import ru.levkopo.barsik.emu.utils.bind_or_rebind
+import ru.levkopo.barsik.emu.utils.try_bind_new_context
 import java.util.*
 import kotlin.system.exitProcess
 
@@ -29,7 +31,7 @@ fun launchORBD() = mainScope.launch {
     orbdProcessFlow.value?.destroyForcibly()
     orbdProcessFlow.value = null
 
-    val orbdStartup = arrayOf("$JVM18_PATH/bin/orbd") + Config.orbInitialParameters
+    val orbdStartup = arrayOf("$JVM18_PATH/bin/orbd") + ORBConfig.buildOrbInitialParameters()
     println("Starting ORB daemon: ${orbdStartup.joinToString(" ")}")
 
     val process = runtime.exec(orbdStartup)
@@ -61,7 +63,7 @@ fun launchORBObserver() = mainScope.launch {
             val orb = ORB.init(
                 arrayOf(
                     "-ORBSupportBootstrapAgent", "1",
-                ) + Config.orbInitialParameters,
+                ) + ORBConfig.buildOrbInitialParameters(),
                 Properties().apply {
                     put("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB")
                     put("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton")

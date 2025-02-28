@@ -39,6 +39,9 @@ dependencies {
     implementation(compose.desktop.currentOs)
     implementation(compose.material3)
 
+    // Excelkt
+    implementation("io.github.evanrupert:excelkt:1.0.2")
+
     implementation("commons-net:commons-net:3.11.1")
     implementation("org.jboss.spec.javax.rmi:jboss-rmi-api_1.0_spec:1.0.6.Final")
     implementation("org.jacorb:jacorb:3.2")

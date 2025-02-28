@@ -7,8 +7,6 @@ import DSP.AttenuatorSet
 import DSP.SigBoardInfo3
 import DSP.SigBoardInfo3Helper
 import DSP.band_t
-import ru.levkopo.barsik.emu.UnsafeUtils
-import ru.levkopo.barsik.emu.UnsafeUtils.BYTES_OFFSET
 import ru.levkopo.barsik.emu.poa.application.ApplicationImpl
 
 
@@ -73,16 +71,4 @@ class ResourceImpl(
         _this()._release()
     }
 
-    fun swapBytes(bytes: ByteArray) {
-        assert(bytes.size % 4 == 0)
-        var i = 0L
-        while (i < bytes.size) {
-            UnsafeUtils.unsafe.putInt(
-                bytes,
-                BYTES_OFFSET + i,
-                Integer.reverseBytes(UnsafeUtils.unsafe.getInt(bytes, BYTES_OFFSET + i))
-            )
-            i += 4
-        }
-    }
 }

@@ -1,4 +1,4 @@
-package ru.levkopo.barsik.emu
+package ru.levkopo.barsik.emu.utils
 
 import sun.misc.Unsafe
 import java.lang.reflect.Field

@@ -1,30 +1,37 @@
-package ru.levkopo.barsik.emu
+package ru.levkopo.barsik.emu.modulators
 
 import DSP.iq
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import javax.sound.sampled.*
-import java.io.File
-import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.math.*
+import javax.sound.sampled.AudioFormat
+import javax.sound.sampled.AudioSystem
+import javax.sound.sampled.DataLine
+import javax.sound.sampled.LineUnavailableException
+import javax.sound.sampled.TargetDataLine
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
 
-class Modulator {
-    var currentIQ = arrayOf<iq>()
+class MicrophoneModulator: BaseModulator {
+    override var carrierFrequency: Double = 0.0
+    override var currentIQ = arrayOf<iq>()
         private set
 
-    var carrierFrequency: Double = 0.0
+    private var job: Job? = null
 
-    init {
-        captureAndProcessAudio(44100f)
+    override fun stop() {
+        job?.cancel()
     }
 
-    fun captureAndProcessAudio(sampleRate: Float) {
+    override fun start() {
         try {
             // 1. Set up AudioFormat
             val sampleSizeInBits = 32
             val channels = 1 // Mono
             val bigEndian = false
+            val sampleRate = 44100f
             val audioFormat = AudioFormat(
                 AudioFormat.Encoding.PCM_SIGNED,
                 sampleRate,
@@ -56,7 +63,7 @@ class Modulator {
                 (sampleRate * audioFormat.frameSize * bufferSizeInSeconds).toInt() // Bytes for 1/100 second
             val buffer = ByteArray(bufferSizeInBytes)
 
-            CoroutineScope(Dispatchers.IO).launch {
+            job = CoroutineScope(Dispatchers.IO).launch {
                 try {
                     while (true) {
                         val numBytesRead = targetDataLine.read(buffer, 0, buffer.size)

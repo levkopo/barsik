@@ -8,10 +8,10 @@ import DSP.SignalRep
 import DSP.TransporterCtrlUsesPort_v3POA
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.omg.CORBA.TCKind
-import ru.levkopo.barsik.emu.Modulator
+import ru.levkopo.barsik.emu.modulators.MicrophoneModulator
 import ru.levkopo.barsik.emu.poa.application.ApplicationImpl
 import ru.levkopo.barsik.emu.poa.ports.transporters.TransporterDataPortImpl.TransporterController
-import ru.levkopo.barsik.emu.str
+import ru.levkopo.barsik.models.asString
 
 class TransporterCtrlUsesPortImpl(
     private val application: ApplicationImpl
@@ -19,7 +19,7 @@ class TransporterCtrlUsesPortImpl(
     companion object {
         val inputMessage = MutableStateFlow("")
         val outputMessage = MutableStateFlow("")
-        val modulator = Modulator()
+        val modulator = MicrophoneModulator()
     }
 
     override fun SendTest() {
@@ -28,7 +28,7 @@ class TransporterCtrlUsesPortImpl(
 
     override fun SendSignalMessage(message: SignalMsg) {
         modulator.carrierFrequency = message.params.freq - message.params.width / 2
-        inputMessage.tryEmit(message.str())
+        inputMessage.tryEmit(message.asString())
 
         val newMessage = SignalMsg(
             GenericSignalParams(
@@ -76,7 +76,7 @@ class TransporterCtrlUsesPortImpl(
         val port = application.getConnectedPort("DataConnection") as TransporterController
         Thread.sleep(10)
         port.sendSignalMessage(newMessage)
-        outputMessage.tryEmit(newMessage.str())
+        outputMessage.tryEmit(newMessage.asString())
     }
 
 
