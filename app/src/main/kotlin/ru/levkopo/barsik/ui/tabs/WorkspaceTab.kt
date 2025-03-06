@@ -12,6 +12,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.awt.SwingPanel
 import androidx.compose.ui.unit.dp
 import com.patrykandpatrick.vico.multiplatform.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.multiplatform.cartesian.axis.HorizontalAxis
@@ -20,8 +21,15 @@ import com.patrykandpatrick.vico.multiplatform.cartesian.data.CartesianChartMode
 import com.patrykandpatrick.vico.multiplatform.cartesian.data.LineCartesianLayerModel
 import com.patrykandpatrick.vico.multiplatform.cartesian.layer.rememberLineCartesianLayer
 import com.patrykandpatrick.vico.multiplatform.cartesian.rememberCartesianChart
+import org.jfree.chart.ChartFactory
+import org.jfree.chart.ChartPanel
+import org.jfree.chart.JFreeChart
+import org.jfree.data.xy.XYSeries
+import org.jfree.data.xy.XYSeriesCollection
 import ru.levkopo.barsik.data.repositories.SignalRepository
 import ru.levkopo.barsik.ui.cards.SignalParametersCard
+
+val series = XYSeries("Sample Data")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,27 +60,52 @@ fun WorkspaceTab() {
                         .width(720.dp)
                         .height(420.dp)
                 ) {
-                    CartesianChartHost(
-                        chart =
-                            rememberCartesianChart(
-                                rememberLineCartesianLayer(),
-                                startAxis = VerticalAxis.rememberStart(),
-                                bottomAxis = HorizontalAxis.rememberBottom(),
-                            ),
-                        model = CartesianChartModel(
-                            LineCartesianLayerModel.build {
-                                if (fftResult.isEmpty()) {
-                                    series(0, 0, 0, 0)
-                                } else {
-                                    series(
-                                        x = fftResult.map { it.frequency },
-                                        y = fftResult.map { it.amplitude },
-                                    )
-                                }
+                    SwingPanel(
+                        factory = {
+                            val series = XYSeries("Sample Data")
+                            series.add(1.0, 1.0)
+
+                            val dataset = XYSeriesCollection(series)
+                            val chart: JFreeChart = ChartFactory.createXYLineChart(
+                                "Line Chart", // Title
+                                "X-Axis", // X-Axis Label
+                                "Y-Axis", // Y-Axis Label
+                                dataset // Dataset
+                            )
+
+                            // Create a ChartPanel and add it to the JPanel
+                            ChartPanel(chart)
+                        },
+                        update = {
+//                            series.clear()
+                            fftResult.forEach {
+                                series.add(it.frequency, it.amplitude)
                             }
-                        ),
-                        modifier = Modifier.fillMaxSize(),
+
+                            series.fireSeriesChanged()
+                        }
                     )
+//                    CartesianChartHost(
+//                        chart =
+//                            rememberCartesianChart(
+//                                rememberLineCartesianLayer(),
+//                                startAxis = VerticalAxis.rememberStart(),
+//                                bottomAxis = HorizontalAxis.rememberBottom(),
+//                            ),
+//                        model = CartesianChartModel(
+//                            LineCartesianLayerModel.build {
+//                                if (fftResult.isEmpty()) {
+//                                    series(0, 0, 0, 0)
+//                                } else {
+//                                    series(
+//                                        x = fftResult.map { it.frequency },
+//                                        y = fftResult.map { it.amplitude },
+//                                    )
+//                                }
+//                            }
+//                        ),
+//                        modifier = Modifier.fillMaxSize(),
+//                    )
                 }
             }
         }

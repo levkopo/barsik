@@ -46,6 +46,7 @@ dependencies {
     implementation("com.github.wendykierp:JTransforms:3.1")
 
     // Charts
+    implementation("org.jfree:jfreechart:1.5.5")
     implementation("com.patrykandpatrick.vico:multiplatform:2.1.0-alpha.6")
     implementation("com.patrykandpatrick.vico:multiplatform-m3:2.1.0-alpha.6")
 
