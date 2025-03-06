@@ -12,6 +12,7 @@ import DSP.TransporterCtrlUsesPortHelper
 import DSP.TransporterCtrlUsesPort_v3POA
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import org.omg.CORBA.ORB
 import org.omg.CORBA.TCKind
 import ru.levkopo.barsik.configs.SignalConfig
