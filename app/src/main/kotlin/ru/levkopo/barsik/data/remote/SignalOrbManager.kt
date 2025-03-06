@@ -41,10 +41,10 @@ object SignalOrbManager {
         else -> runCatching {}
     }
 
-    suspend fun stop() {
+    fun stop() {
         isInitialized = false
         applicationStateFlow.value?.releaseObject()
-        applicationStateFlow.emit(null)
+        applicationStateFlow.tryEmit(null)
     }
 
     fun <T> usePOA(handler: (POA) -> T) {

@@ -42,6 +42,13 @@ dependencies {
     // Excelkt
     implementation("io.github.evanrupert:excelkt:1.0.2")
 
+    // JTransforms
+    implementation("com.github.wendykierp:JTransforms:3.1")
+
+    // Charts
+    implementation("com.patrykandpatrick.vico:multiplatform:2.1.0-alpha.6")
+    implementation("com.patrykandpatrick.vico:multiplatform-m3:2.1.0-alpha.6")
+
     implementation("commons-net:commons-net:3.11.1")
     implementation("org.jboss.spec.javax.rmi:jboss-rmi-api_1.0_spec:1.0.6.Final")
     implementation("org.jacorb:jacorb:3.2")

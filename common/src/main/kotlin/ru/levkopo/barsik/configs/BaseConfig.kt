@@ -22,6 +22,7 @@ abstract class BaseConfig {
         }
 
         operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
+            currentValue = value
             println("$value has been assigned to '${property.name}' in $thisRef.")
         }
     }

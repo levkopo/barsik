@@ -37,5 +37,7 @@ internal class TelnetInitializer {
         delay(1000)
 
         client.disconnect()
+
+        delay(5000)
     }
 }

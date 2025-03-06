@@ -132,4 +132,8 @@ class MicrophoneModulator: BaseModulator {
 
         return iqSignals.toTypedArray()
     }
+
+    init {
+        start()
+    }
 }
