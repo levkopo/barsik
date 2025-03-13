@@ -2,15 +2,29 @@ package ru.levkopo.barsik.ui
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SecondaryTabRow
+import androidx.compose.material3.Tab
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
-import ru.levkopo.barsik.ui.tabs.ExportTab
+import io.github.evanrupert.excelkt.workbook
+import ru.levkopo.barsik.data.repositories.SignalRepository
 import ru.levkopo.barsik.ui.tabs.SettingsTab
 import ru.levkopo.barsik.ui.tabs.WorkspaceTab
+import java.io.File
+import java.util.*
+import javax.swing.JFileChooser
+import javax.swing.filechooser.FileNameExtensionFilter
+
+val fileChooser = JFileChooser().apply {
+    val date = Date()
+    setSelectedFile(File("Barsic Export $date.xlsx"))
+    resetChoosableFileFilters()
+    addChoosableFileFilter(
+        FileNameExtensionFilter("XLSX таблица", "xlsx")
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -20,19 +34,48 @@ fun AppScreen() {
     val titles = listOf("Рабочая зона", "Экспорт", "Настройки")
     Column {
         SecondaryTabRow(selectedTabIndex = state) {
-            titles.forEachIndexed { index, title ->
-                Tab(
-                    selected = state == index,
-                    onClick = { state = index },
-                    text = { Text(text = title, maxLines = 2, overflow = TextOverflow.Ellipsis) }
-                )
-            }
+            Tab(
+                selected = state == 0,
+                onClick = { state = 0 },
+                text = { Text(text = "Рабочая зона", maxLines = 2, overflow = TextOverflow.Ellipsis) }
+            )
+            Tab(
+                selected = false,
+                onClick = {
+                    val status = fileChooser.showSaveDialog(null)
+                    if(status == JFileChooser.APPROVE_OPTION) {
+                        fileChooser.selectedFile?.let { file ->
+                            val table = SignalRepository.savedSignalTable.value
+                            workbook {
+                                sheet("Итоги") {
+                                    row {
+                                        cell("Частота")
+                                        cell("Амплитуда")
+                                    }
+
+                                    table.forEach { signal ->
+                                        row {
+                                            cell(signal.key)
+                                            cell(signal.value)
+                                        }
+                                    }
+                                }
+                            }.write(file.path)
+                        }
+                    }
+                },
+                text = { Text(text = "Экспорт", maxLines = 2, overflow = TextOverflow.Ellipsis) }
+            )
+            Tab(
+                selected = state == 1,
+                onClick = { state = 1 },
+                text = { Text(text = "Настройки", maxLines = 2, overflow = TextOverflow.Ellipsis) }
+            )
         }
 
         when (state) {
             0 -> WorkspaceTab()
-            1 -> ExportTab()
-            2 -> SettingsTab()
+            1 -> SettingsTab()
         }
     }
 }

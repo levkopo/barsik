@@ -16,11 +16,14 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.launch
 import org.jtransforms.fft.DoubleFFT_1D
 import org.omg.CORBA.ORB
 import org.omg.CORBA.TCKind
+import ru.levkopo.barsik.configs.DetectorsConfig
 import ru.levkopo.barsik.configs.SignalConfig
 import ru.levkopo.barsik.data.remote.SignalOrbManager
+import kotlin.math.max
 import kotlin.math.sqrt
 
 object SignalRepository {
@@ -36,8 +39,11 @@ object SignalRepository {
     private val _fftResult = MutableStateFlow<List<Signal>>(listOf())
     val fftResult = _fftResult.asStateFlow()
 
+    private val _savedSignalTable = MutableStateFlow<Map<Double, Double>>(emptyMap())
+    val savedSignalTable = _savedSignalTable.asStateFlow()
+
     private val currentSignalMsg: MutableStateFlow<SignalMsg?> = MutableStateFlow(null)
-    private var packetNumber = -1
+    private var packetNumber = 0
     private val serverTransporterFlow = MutableStateFlow<TransporterCtrlUsesPort?>(null)
 
     private val transporter = object : TransporterCtrlUsesPort_v3POA() {
@@ -51,30 +57,19 @@ object SignalRepository {
         }
 
         private lateinit var iqData: DoubleArray
-        private lateinit var fft: DoubleFFT_1D
 
         override fun SendSignalMessage(message: SignalMsg) {
             currentSignalMsg.value = message
 
             runCatching {
                 val sizeOfIq = message.extended.c.size
-                if(!::fft.isInitialized || sizeOfIq != iqData.size / 2) {
-                    fft = DoubleFFT_1D(sizeOfIq.toLong())
-                }
-
                 if(!::iqData.isInitialized || iqData.size != sizeOfIq) {
                     iqData = DoubleArray(sizeOfIq * 2)
                 }
 
-                for (i in 0 until sizeOfIq) {
-                    val iq = message.extended.c[i]
-                    iqData[2 * i] = iq.i.toDouble()
-                    iqData[2 * i + 1] = iq.q.toDouble()
-                }
-
-                fft.realForwardFull(iqData)
                 _fftResult.value = List(sizeOfIq) { i ->
-                    Signal(i.toDouble(), sqrt(iqData[2 * i] * iqData[2 * i] + iqData[2 * i + 1] * iqData[2 * i + 1]))
+                    val iq = message.extended.c[i]
+                    Signal(i.toDouble(), (iq.i + iq.q).toDouble())
                 }
             }.onFailure {
                 it.printStackTrace()
@@ -85,6 +80,22 @@ object SignalRepository {
     }
 
     init {
+        scope.launch {
+            _fftResult.collect { signals ->
+                val saved = HashMap(_savedSignalTable.value)
+                for (signal in signals) {
+                    if(signal.amplitude > DetectorsConfig.minAmplitude) {
+                        val savedFrequency = saved[signal.frequency] ?: 0.0
+                        if (signal.amplitude > savedFrequency) {
+                            saved[signal.frequency] = signal.amplitude
+                        }
+                    }
+                }
+
+                _savedSignalTable.value = saved
+            }
+        }
+
         SignalOrbManager.useApplication { application ->
             if (application == null) return@useApplication
 
@@ -118,7 +129,7 @@ object SignalRepository {
             SignalConfig.qualityPhase,
             SignalConfig.ae,
             SignalConfig.channel,
-            byteArrayOf(10)
+            byteArrayOf(8)
         ),
         packetNumber++,
         0, true, 1, 0, false,
@@ -127,11 +138,9 @@ object SignalRepository {
             PowerPhase(
                 byteArrayOf(),
                 byteArrayOf(),
-                1
-            ),
-            SignalRep(
                 -70
-            )
+            ),
+            SignalRep(1)
         ),
         orb.create_any().apply {
             type(orb.get_primitive_tc(TCKind.tk_null))
