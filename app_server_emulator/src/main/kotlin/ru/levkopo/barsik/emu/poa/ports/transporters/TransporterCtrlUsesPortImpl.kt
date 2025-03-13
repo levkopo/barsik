@@ -8,7 +8,7 @@ import DSP.SignalRep
 import DSP.TransporterCtrlUsesPort_v3POA
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.omg.CORBA.TCKind
-import ru.levkopo.barsik.emu.modulators.MicrophoneModulator
+import ru.levkopo.barsik.emu.modulators.base.ModulatorsManager
 import ru.levkopo.barsik.emu.poa.application.ApplicationImpl
 import ru.levkopo.barsik.emu.poa.ports.transporters.TransporterDataPortImpl.TransporterController
 import ru.levkopo.barsik.models.asString
@@ -19,20 +19,18 @@ class TransporterCtrlUsesPortImpl(
     companion object {
         val inputMessage = MutableStateFlow("")
         val outputMessage = MutableStateFlow("")
-        val modulator = MicrophoneModulator()
     }
 
-    override fun SendTest() {
-        TODO("Not yet implemented")
-    }
+    override fun SendTest() {}
 
     override fun SendSignalMessage(message: SignalMsg) {
-        modulator.carrierFrequency = message.params.freq - message.params.width / 2
+        ModulatorsManager.carrierFrequency = message.params.freq - message.params.width / 2
+
         inputMessage.tryEmit(message.asString())
 
         val newMessage = SignalMsg(
             GenericSignalParams(
-                when(message.packetNumber){
+                when (message.packetNumber) {
                     0 -> message.params.freq
                     else -> 0.0
                 },
@@ -56,9 +54,7 @@ class TransporterCtrlUsesPortImpl(
             SignalDataEx(
                 arrayOf(),
                 arrayOf(),
-                Array((message.params.width / 1000).toInt()) {
-                    modulator.currentIQ
-                }.flatten().toTypedArray(),
+                ModulatorsManager.currentIQ,
                 PowerPhase(
                     byteArrayOf(),
                     byteArrayOf(),
@@ -74,7 +70,7 @@ class TransporterCtrlUsesPortImpl(
         )
 
         val port = application.getConnectedPort("DataConnection") as TransporterController
-        Thread.sleep(10)
+        Thread.sleep(1)
         port.sendSignalMessage(newMessage)
         outputMessage.tryEmit(newMessage.asString())
     }

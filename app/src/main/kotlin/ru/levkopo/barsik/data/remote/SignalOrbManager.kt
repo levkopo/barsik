@@ -59,6 +59,7 @@ object SignalOrbManager {
         }.onSuccess {
             Either.Right(it)
         }.onFailure {
+            it.printStackTrace()
             Either.Left(it)
         }
     }

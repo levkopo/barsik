@@ -16,6 +16,9 @@ dependencies {
     implementation(compose.desktop.currentOs)
     implementation(compose.material3)
 
+    // JTransforms
+    implementation("com.github.wendykierp:JTransforms:3.1")
+
     implementation(project(":common"))
     implementation("com.khubla.ktelnet:ktelnet:1.1")
 }

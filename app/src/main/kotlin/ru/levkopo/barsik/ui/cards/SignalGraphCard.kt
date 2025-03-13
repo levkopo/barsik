@@ -11,16 +11,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.awt.SwingPanel
 import androidx.compose.ui.unit.dp
-import com.patrykandpatrick.vico.multiplatform.cartesian.CartesianChartHost
-import com.patrykandpatrick.vico.multiplatform.cartesian.axis.HorizontalAxis
-import com.patrykandpatrick.vico.multiplatform.cartesian.axis.VerticalAxis
-import com.patrykandpatrick.vico.multiplatform.cartesian.data.CartesianChartModel
-import com.patrykandpatrick.vico.multiplatform.cartesian.data.LineCartesianLayerModel
-import com.patrykandpatrick.vico.multiplatform.cartesian.layer.rememberLineCartesianLayer
-import com.patrykandpatrick.vico.multiplatform.cartesian.rememberCartesianChart
+import org.jfree.chart.ChartFactory
+import org.jfree.chart.ChartPanel
+import org.jfree.chart.JFreeChart
+import org.jfree.chart.plot.PlotOrientation
+import org.jfree.chart.plot.XYPlot
+import org.jfree.data.xy.XYSeries
+import org.jfree.data.xy.XYSeriesCollection
 import ru.levkopo.barsik.data.repositories.SignalRepository
+import java.awt.Color
 
+val series = XYSeries("Частота")
 @Composable
 fun SignalGraphCard() {
     val fftResult by SignalRepository.fftResult.collectAsState()
@@ -35,26 +38,58 @@ fun SignalGraphCard() {
             .width(720.dp)
             .height(420.dp)
     ) {
-        CartesianChartHost(
-            chart =
-                rememberCartesianChart(
-                    rememberLineCartesianLayer(),
-                    startAxis = VerticalAxis.rememberStart(),
-                    bottomAxis = HorizontalAxis.rememberBottom(),
-                ),
-            model = CartesianChartModel(
-                LineCartesianLayerModel.build {
-                    if (fftResult.isEmpty()) {
-                        series(0, 0, 0, 0)
-                    } else {
-                        series(
-                            x = fftResult.map { it.frequency },
-                            y = fftResult.map { it.amplitude },
-                        )
-                    }
-                }
-            ),
+        SwingPanel(
             modifier = Modifier.fillMaxSize(),
+            factory = {
+                val dataset = XYSeriesCollection(series)
+                val chart: JFreeChart = ChartFactory.createXYLineChart(
+                    "",
+                    "Частота, МГц",
+                    "Амплитуда",
+                    dataset,
+                    PlotOrientation.VERTICAL,
+                    false,
+                    false,
+                    false
+                )
+
+
+                val xyPlot = chart.plot as XYPlot
+                xyPlot.renderer.defaultPaint = Color.getColor("#65558F")
+
+                ChartPanel(chart).apply {
+                    background = null
+                }
+            },
+            update = {
+                series.clear()
+                fftResult.forEach {
+                    series.add(it.frequency, it.amplitude / 1000)
+                }
+
+                series.fireSeriesChanged()
+            }
         )
+//        CartesianChartHost(
+//            chart =
+//                rememberCartesianChart(
+//                    rememberLineCartesianLayer(),
+//                    startAxis = VerticalAxis.rememberStart(),
+//                    bottomAxis = HorizontalAxis.rememberBottom(),
+//                ),
+//            model = CartesianChartModel(
+//                LineCartesianLayerModel.build {
+//                    if (fftResult.isEmpty()) {
+//                        series(0, 0, 0, 0)
+//                    } else {
+//                        series(
+//                            x = fftResult.map { it.frequency },
+//                            y = fftResult.map { it.amplitude },
+//                        )
+//                    }
+//                }
+//            ),
+//            modifier = Modifier.fillMaxSize(),
+//        )
     }
 }

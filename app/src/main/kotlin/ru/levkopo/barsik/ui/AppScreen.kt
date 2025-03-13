@@ -67,15 +67,15 @@ fun AppScreen() {
                 text = { Text(text = "Экспорт", maxLines = 2, overflow = TextOverflow.Ellipsis) }
             )
             Tab(
-                selected = state == 1,
-                onClick = { state = 1 },
+                selected = state == 2,
+                onClick = { state = 2 },
                 text = { Text(text = "Настройки", maxLines = 2, overflow = TextOverflow.Ellipsis) }
             )
         }
 
         when (state) {
             0 -> WorkspaceTab()
-            1 -> SettingsTab()
+            2 -> SettingsTab()
         }
     }
 }

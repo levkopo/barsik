@@ -3,64 +3,57 @@ package ru.levkopo.barsik.emu.ui
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import ru.levkopo.barsik.emu.launchORBD
-import ru.levkopo.barsik.emu.poa.ports.transporters.TransporterCtrlUsesPortImpl
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.vector.ImageVector
+import ru.levkopo.barsik.emu.ui.sections.ModulatorsScreen
+import ru.levkopo.barsik.emu.ui.sections.ORBSection
+
+private data class Section(
+    val name: String,
+    val icon: ImageVector,
+    val screen: @Composable () -> Unit,
+)
+
+private val sections = arrayOf<Section>(
+    Section(
+        name = "ORB",
+        icon = Icons.Default.Info,
+        screen = { ORBSection() }
+    ),
+    Section(
+        name = "Модуляторы",
+        icon = Icons.Default.Call,
+        screen = { ModulatorsScreen() }
+    )
+)
 
 @Preview
 @Composable
 fun AppScreen() {
-    val inputMessage by TransporterCtrlUsesPortImpl.inputMessage.collectAsState()
-    val outputMessage by TransporterCtrlUsesPortImpl.outputMessage.collectAsState()
+    var sectionIndex by remember { mutableStateOf(0) }
+    val section = sections[sectionIndex]
 
     MaterialTheme {
-        Column(
-            modifier = Modifier.fillMaxSize()
-                .padding(8.dp),
-        ) {
-            Row {
-                Button(onClick = {
-                    launchORBD()
-                }) {
-                    Text("Initialize ORB")
+        Row {
+            NavigationRail {
+                sections.forEachIndexed { index, section ->
+                    NavigationRailItem(
+                        selected = index == sectionIndex,
+                        onClick = { sectionIndex = index },
+                        icon = { Icon(section.icon, contentDescription = section.name) },
+                        label = { Text(section.name) },
+                    )
                 }
             }
 
-            LazyVerticalGrid (
-                columns = GridCells.Fixed(2),
-                modifier = Modifier.fillMaxSize(),
-            ) {
-                item {
-                    Text(
-                        text = inputMessage,
-                        fontSize = 12.sp,
-                        lineHeight = 12.sp,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-
-                item {
-                    Text(
-                        text = outputMessage,
-                        fontSize = 12.sp,
-                        lineHeight = 12.sp,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
+            Column {
+                section.screen()
             }
         }
+
     }
 }

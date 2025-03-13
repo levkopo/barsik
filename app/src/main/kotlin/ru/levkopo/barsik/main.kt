@@ -25,7 +25,9 @@ fun main() {
     application {
         Window(
             onCloseRequest = {
-                SignalOrbManager.stop()
+                runCatching {
+                    SignalOrbManager.stop()
+                }
                 exitApplication()
             },
         ) {

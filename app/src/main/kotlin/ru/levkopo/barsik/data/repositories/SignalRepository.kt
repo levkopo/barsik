@@ -23,6 +23,7 @@ import org.omg.CORBA.TCKind
 import ru.levkopo.barsik.configs.DetectorsConfig
 import ru.levkopo.barsik.configs.SignalConfig
 import ru.levkopo.barsik.data.remote.SignalOrbManager
+import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.sqrt
 
@@ -69,7 +70,7 @@ object SignalRepository {
 
                 _fftResult.value = List(sizeOfIq) { i ->
                     val iq = message.extended.c[i]
-                    Signal(i.toDouble(), (iq.i + iq.q).toDouble())
+                    Signal(i.toDouble(), abs((iq.i + iq.q).toDouble()))
                 }
             }.onFailure {
                 it.printStackTrace()
