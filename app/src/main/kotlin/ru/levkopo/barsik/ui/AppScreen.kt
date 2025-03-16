@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.text.style.TextOverflow
 import io.github.evanrupert.excelkt.workbook
+import org.apache.poi.xssf.usermodel.XSSFCellStyle
 import ru.levkopo.barsik.data.repositories.SignalRepository
 import ru.levkopo.barsik.ui.tabs.SettingsTab
 import ru.levkopo.barsik.ui.tabs.WorkspaceTab
@@ -54,7 +55,7 @@ fun AppScreen() {
                                         cell("Амплитуда, мкВ")
                                     }
 
-                                    table.forEach { signal ->
+                                    table.entries.sortedBy { it.key }.forEach { signal ->
                                         row {
                                             cell(signal.key)
                                             cell(signal.value.dBm)

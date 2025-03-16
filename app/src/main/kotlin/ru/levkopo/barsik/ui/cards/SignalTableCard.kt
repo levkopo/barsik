@@ -57,7 +57,7 @@ fun SignalTableCard() {
                 )
             }
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                itemsIndexed(savedSignalTable.entries.toList()) { index, entry ->
+                itemsIndexed(savedSignalTable.entries.toList().sortedBy { it.key }) { index, entry ->
                     Row(
                         modifier = Modifier.fillMaxWidth().background(
                             color = when {

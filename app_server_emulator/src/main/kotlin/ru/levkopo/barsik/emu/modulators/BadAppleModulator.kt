@@ -8,17 +8,17 @@ import androidx.compose.material.Button
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Slider
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import org.jetbrains.compose.resources.decodeToImageBitmap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.decodeToImageBitmap
 import ru.levkopo.barsik.emu.modulators.base.BaseModulator
 import java.io.File
 import java.io.FileInputStream
@@ -31,66 +31,64 @@ class BadAppleModulator : BaseModulator() {
     private val frameRate = 24
     private var framesDone = MutableStateFlow(0)
     private var currentFrame = MutableStateFlow(0)
-    private lateinit var frames: ArrayDeque<Array<iq>>
+    private val frames = ArrayDeque<Array<iq>>()
 
     fun generateFrames() {
         CoroutineScope(Dispatchers.IO).launch {
-            frames = ArrayDeque(
-                framesFiles.map { frame ->
-                    val image = ImageIO.read(frame)
-                    val iQSignals = arrayListOf<iq>()
-                    iQSignals.add(iq(image.height.toFloat(), 0.0f))
+            framesFiles.forEach { frame ->
+                val image = ImageIO.read(frame)
+                val iQSignals = arrayListOf<iq>()
+                iQSignals.add(iq(image.height.toFloat(), 0.0f))
 
-                    var blackPixels = 0
-                    for (x in 0 until image.width) {
-                        for (y in 0 until image.height) {
-                            val color = image.getRGB(x, y)
-                            val r = (color shr 16) and 0xff
-                            val g = (color shr 8) and 0xff
-                            val b = color and 0xff
-                            val luminance = (0.299 * r + 0.587 * g + 0.114 * b)
-                            if (luminance < 255 / 2) {
-                                blackPixels++
-                            }
+                var blackPixels = 0
+                for (x in 0 until image.width) {
+                    for (y in 0 until image.height) {
+                        val color = image.getRGB(x, y)
+                        val r = (color shr 16) and 0xff
+                        val g = (color shr 8) and 0xff
+                        val b = color and 0xff
+                        val luminance = (0.299 * r + 0.587 * g + 0.114 * b)
+                        if (luminance < 255 / 2) {
+                            blackPixels++
                         }
                     }
-
-                    val isBlackMain = blackPixels >= (image.width * image.height) / 2
-                    for (x in 0 until image.width) {
-                        var minBlackPixel = image.height
-                        var minWhitePixel = image.height
-                        for (y in 0 until image.height) {
-                            val color = image.getRGB(x, y)
-                            val r = (color shr 16) and 0xff
-                            val g = (color shr 8) and 0xff
-                            val b = color and 0xff
-                            val luminance = (0.299 * r + 0.587 * g + 0.114 * b)
-
-                            if (luminance < 255 / 2) {
-                                minBlackPixel = minBlackPixel.coerceAtMost(y)
-                            } else {
-                                minWhitePixel = minWhitePixel.coerceAtMost(y)
-                            }
-                        }
-
-                        if (!isBlackMain) {
-                            iQSignals.add(iq((image.height - minBlackPixel).toFloat(), 0.0f))
-                        } else {
-                            iQSignals.add(iq((image.height - minWhitePixel).toFloat(), 0.0f))
-                        }
-                    }
-
-                    iQSignals.add(iq(image.height.toFloat(), 0.0f))
-                    framesDone.value += 1
-                    iQSignals.toTypedArray()
                 }
-            )
+
+                val isBlackMain = blackPixels >= (image.width * image.height) / 2
+                for (x in 0 until image.width) {
+                    var minBlackPixel = image.height
+                    var minWhitePixel = image.height
+                    for (y in 0 until image.height) {
+                        val color = image.getRGB(x, y)
+                        val r = (color shr 16) and 0xff
+                        val g = (color shr 8) and 0xff
+                        val b = color and 0xff
+                        val luminance = (0.299 * r + 0.587 * g + 0.114 * b)
+
+                        if (luminance < 255 / 2) {
+                            minBlackPixel = minBlackPixel.coerceAtMost(y)
+                        } else {
+                            minWhitePixel = minWhitePixel.coerceAtMost(y)
+                        }
+                    }
+
+                    if (!isBlackMain) {
+                        iQSignals.add(iq((image.height - minBlackPixel).toFloat(), 0.0f))
+                    } else {
+                        iQSignals.add(iq((image.height - minWhitePixel).toFloat(), 0.0f))
+                    }
+                }
+
+                iQSignals.add(iq(image.height.toFloat(), 0.0f))
+                framesDone.value += 1
+                frames.addLast(iQSignals.toTypedArray())
+            }
         }
     }
 
     override suspend fun run() {
         while (isRunning.value) {
-            currentIQ = frames[currentFrame.value++]
+            currentIQ = frames.getOrElse(currentFrame.value++) { arrayOf() }
             if (currentFrame.value > frames.size) {
                 currentFrame.value = 0
             }

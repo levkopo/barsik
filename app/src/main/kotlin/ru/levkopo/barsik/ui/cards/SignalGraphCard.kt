@@ -13,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.SwingPanel
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import org.jfree.chart.ChartFactory
 import org.jfree.chart.ChartPanel
 import org.jfree.chart.JFreeChart
@@ -95,6 +96,9 @@ fun SignalGraphCard() {
                     })
                 }
 
+                SignalSettings.maxAmplitude = SignalSettings.maxAmplitude.coerceAtLeast(spectrumSeries.maxY).coerceAtLeast(detectorSeries.maxY)
+                SignalSettings.minAmplitude = SignalSettings.minAmplitude.coerceAtMost(spectrumSeries.minY).coerceAtMost(detectorSeries.minY)
+                xyPlot.rangeAxis.setRange(SignalSettings.minAmplitude, SignalSettings.maxAmplitude + 1)
                 spectrumSeries.fireSeriesChanged()
             }
         )
