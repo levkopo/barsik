@@ -32,7 +32,7 @@ fun SignalTableCard() {
         Column {
             Row(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    "Частота",
+                    "Частота, МГЦ",
                     fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onPrimary,
                     textAlign = TextAlign.Center,
@@ -40,7 +40,15 @@ fun SignalTableCard() {
                         .height(30.dp),
                 )
                 Text(
-                    "Амплитуда",
+                    "дБм",
+                    fontSize = 13.sp,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.background(color = MaterialTheme.colorScheme.primary).weight(1f)
+                        .height(30.dp),
+                )
+                Text(
+                    "мкВ",
                     fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onPrimary,
                     textAlign = TextAlign.Center,
@@ -66,7 +74,14 @@ fun SignalTableCard() {
                             textAlign = TextAlign.Center,
                         )
                         Text(
-                            entry.value.toString(),
+                            entry.value.dBm.toString(),
+                            modifier = Modifier.weight(1f).fillMaxHeight(),
+                            fontSize = 12.sp,
+                            lineHeight = 20.sp,
+                            textAlign = TextAlign.Center,
+                        )
+                        Text(
+                            entry.value.voltage.toString(),
                             modifier = Modifier.weight(1f).fillMaxHeight(),
                             fontSize = 12.sp,
                             lineHeight = 20.sp,

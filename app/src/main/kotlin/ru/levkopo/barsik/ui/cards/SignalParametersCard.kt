@@ -1,7 +1,9 @@
 package ru.levkopo.barsik.ui.cards
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,18 +11,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.onClick
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedIconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -28,19 +27,29 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.levkopo.barsik.configs.SignalConfig
 import ru.levkopo.barsik.data.repositories.SignalRepository
+import ru.levkopo.barsik.data.repositories.SystemBoardInformationRepository
+import ru.levkopo.barsik.models.asString
+import kotlin.text.String
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun SignalParametersCard() {
+    val systemBoardInfo by SystemBoardInformationRepository.systemBoardInfo.collectAsState()
     var frequency by remember { mutableStateOf(SignalConfig.frequency / 1000000) }
     var width by remember { mutableStateOf(SignalConfig.width / 1000) }
-    var filter by remember { mutableStateOf(SignalConfig.filter) }
+    var filter by remember { mutableStateOf(SignalConfig.filter / 1000) }
     var attenuator by remember { mutableStateOf(SignalConfig.attenuator) }
     var channel by remember { mutableStateOf(SignalConfig.channel) }
+    var filterExpanded by remember { mutableStateOf(false) }
+    var attenuatorExpanded by remember { mutableStateOf(false) }
+    var channelExpanded by remember { mutableStateOf(false) }
     val isInitialized by SignalRepository.isInitialized.collectAsState()
     val isRunning by SignalRepository.isRunning.collectAsState()
 
@@ -80,9 +89,14 @@ fun SignalParametersCard() {
                             frequency = it.toDouble()
                             SignalConfig.frequency = it.toDouble() * 1000000
                         },
-                        label = { Text("Частота, МГц") },
+                        label = { Text("Частота") },
                         modifier = Modifier
-                            .width(210.dp)
+                            .width(210.dp),
+                        suffix = { Text("МГц") },
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number
+                        ),
+                        visualTransformation = VisualTransformation.None
                     )
                     OutlinedTextField(
                         value = width.toString(),
@@ -91,48 +105,156 @@ fun SignalParametersCard() {
                             width = it.toDouble()
                             SignalConfig.width = it.toDouble() * 1000
                         },
-                        label = { Text("Ширина канала, кГц") },
+                        label = { Text("Полоса") },
                         modifier = Modifier
-                            .width(210.dp)
+                            .width(210.dp),
+                        suffix = { Text("кГц") },
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number
+                        ),
+                        visualTransformation = VisualTransformation.None
                     )
                 }
 
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    OutlinedTextField(
-                        value = filter.toString(),
-                        enabled = isInitialized,
-                        onValueChange = {
-                            filter = it.toFloat()
-                            SignalConfig.filter = it.toFloat()
-                        },
-                        label = { Text("Фильтр") },
+                    ExposedDropdownMenuBox(
+                        expanded = filterExpanded,
+                        onExpandedChange = { filterExpanded = !filterExpanded },
                         modifier = Modifier
                             .width(165.dp)
-                    )
-                    OutlinedTextField(
-                        value = attenuator.toString(),
-                        enabled = isInitialized,
-                        onValueChange = {
-                            attenuator = it.toInt().toShort()
-                            SignalConfig.attenuator = it.toInt().toShort()
-                        },
-                        label = { Text("Аттенюатор") },
+                    ) {
+                        OutlinedTextField(
+                            value = String.format("%.3f", filter).replace(',', '.'),
+                            enabled = isInitialized,
+                            onValueChange = {},
+                            readOnly = true,
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(
+                                    expanded = filterExpanded,
+                                    modifier = Modifier.menuAnchor(MenuAnchorType.SecondaryEditable).onClick {
+                                        filterExpanded = !filterExpanded
+                                    },
+                                )
+                            },
+                            suffix = { Text("кГц") },
+                            label = { Text("Фильтр") },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .menuAnchor(MenuAnchorType.PrimaryEditable),
+                        )
+
+                        ExposedDropdownMenu(
+                            expanded = filterExpanded,
+                            onDismissRequest = {
+                                filterExpanded = false
+                            }
+                        ) {
+                            systemBoardInfo?.filters?.forEach {
+                                DropdownMenuItem(
+                                    text = { Text(String.format("%.3f", it / 1000).replace(',', '.') + " кГц") },
+                                    onClick = {
+                                        SignalConfig.filter = it
+                                        filter = it / 1000
+                                        filterExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+
+                    ExposedDropdownMenuBox(
+                        expanded = attenuatorExpanded,
+                        onExpandedChange = { attenuatorExpanded = !attenuatorExpanded },
                         modifier = Modifier
                             .width(127.dp)
-                    )
-                    OutlinedTextField(
-                        value = channel.toString(),
-                        enabled = isInitialized,
-                        onValueChange = {
-                            channel = it.toInt()
-                            SignalConfig.channel = it.toInt()
-                        },
-                        label = { Text("Канал") },
+                    ) {
+                        OutlinedTextField(
+                            value = attenuator.toString(),
+                            enabled = isInitialized,
+                            onValueChange = {},
+                            label = { Text("Аттенюатор") },
+                            suffix = { Text("дБ") },
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(
+                                    expanded = attenuatorExpanded,
+                                    modifier = Modifier.menuAnchor(MenuAnchorType.SecondaryEditable).onClick {
+                                        attenuatorExpanded = !attenuatorExpanded
+                                    },
+                                )
+                            },
+                            readOnly = true,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .menuAnchor(MenuAnchorType.PrimaryEditable)
+                        )
+
+                        ExposedDropdownMenu(
+                            expanded = attenuatorExpanded,
+                            onDismissRequest = {
+                                attenuatorExpanded = false
+                            }
+                        ) {
+                            listOf<Short>(0, 24).forEach {
+                                DropdownMenuItem(
+                                    text = { Text("$it дБ") },
+                                    onClick = {
+                                        SignalConfig.attenuator = it
+                                        attenuator
+                                        attenuatorExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+
+                    ExposedDropdownMenuBox(
+                        expanded = channelExpanded,
+                        onExpandedChange = { channelExpanded = !channelExpanded },
                         modifier = Modifier
                             .width(127.dp)
-                    )
+                    ) {
+                        OutlinedTextField(
+                            value = channel.toString(),
+                            enabled = isInitialized,
+                            onValueChange = {
+                                channel = it.toInt()
+                                SignalConfig.channel = it.toInt()
+                            },
+                            label = { Text("Канал") },
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(
+                                    expanded = channelExpanded,
+                                    modifier = Modifier.menuAnchor(MenuAnchorType.SecondaryEditable).onClick {
+                                        channelExpanded = !channelExpanded
+                                    },
+                                )
+                            },
+                            readOnly = true,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .menuAnchor(MenuAnchorType.PrimaryEditable)
+                        )
+
+                        ExposedDropdownMenu(
+                            expanded = channelExpanded,
+                            onDismissRequest = {
+                                channelExpanded = false
+                            }
+                        ) {
+                            systemBoardInfo?.attenuator?.bands?.forEach {
+                                DropdownMenuItem(
+                                    text = { Text((it.id + 1).toString()) },
+                                    onClick = {
+                                        SignalConfig.attenuator = (it.id + 1).toShort()
+                                        channel = it.id + 1
+                                        channelExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
                 }
             }
 

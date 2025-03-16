@@ -15,10 +15,9 @@ import androidx.compose.ui.unit.dp
 import org.jfree.data.xy.XYSeries
 import ru.levkopo.barsik.data.repositories.SignalRepository
 import ru.levkopo.barsik.ui.cards.SignalGraphCard
+import ru.levkopo.barsik.ui.cards.SignalGraphParametersCard
 import ru.levkopo.barsik.ui.cards.SignalTableCard
 import ru.levkopo.barsik.ui.cards.SignalParametersCard
-
-val series = XYSeries("Sample Data")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,6 +40,12 @@ fun WorkspaceTab() {
             ) {
                 SignalGraphCard()
                 SignalTableCard()
+            }
+
+            Column(
+                verticalArrangement = Arrangement.spacedBy(18.dp),
+            ) {
+                SignalGraphParametersCard()
             }
         }
     }

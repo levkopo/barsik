@@ -15,6 +15,7 @@ dependencies {
     // Add compose
     implementation(compose.desktop.currentOs)
     implementation(compose.material3)
+    implementation(compose.components.resources)
 
     // JTransforms
     implementation("com.github.wendykierp:JTransforms:3.1")
@@ -42,12 +43,12 @@ repositories {
 }
 
 java {
-    targetCompatibility = JavaVersion.VERSION_1_8
-    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_11
 }
 
 kotlin {
     compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_1_8)
+        jvmTarget.set(JvmTarget.JVM_11)
     }
 }

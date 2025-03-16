@@ -20,7 +20,7 @@ class MicrophoneModulator: BaseModulator() {
             val sampleSizeInBits = 32
             val channels = 1 // Mono
             val bigEndian = false
-            val sampleRate = 44100f
+            val sampleRate = 48000f
             val audioFormat = AudioFormat(
                 AudioFormat.Encoding.PCM_SIGNED,
                 sampleRate,
@@ -46,10 +46,8 @@ class MicrophoneModulator: BaseModulator() {
             targetDataLine.start()
 
             // 4. Real-time processing loop
-            val bufferSizeInSeconds = 0.01 //10 milisseconds chunk size
-
-            val bufferSizeInBytes =
-                (sampleRate * audioFormat.frameSize * bufferSizeInSeconds).toInt() // Bytes for 1/100 second
+            val bufferSizeInSeconds = 0.01 // 10 milisseconds chunk size
+            val bufferSizeInBytes = (sampleRate * audioFormat.frameSize * bufferSizeInSeconds).toInt() // Bytes for 1/100 second
             val buffer = ByteArray(bufferSizeInBytes)
 
             try {
@@ -61,7 +59,6 @@ class MicrophoneModulator: BaseModulator() {
                     val floatArray = FloatArray(numBytesRead / (numBytesPerSample * channels))
 
                     for (i in 0 until floatArray.size) {
-
                         // Get the byte offset for the sample
                         val byteOffset = i * numBytesPerSample * channels
 
@@ -73,7 +70,6 @@ class MicrophoneModulator: BaseModulator() {
                             sampleValue = (sampleValue shl 8) or byte
                         }
 
-                        // Convert to signed value if necessary
                         if (audioFormat.encoding == AudioFormat.Encoding.PCM_SIGNED) {
                             val bitDepth = audioFormat.sampleSizeInBits
                             val maxValue = (1 shl (bitDepth - 1)) - 1
@@ -121,8 +117,8 @@ class MicrophoneModulator: BaseModulator() {
             val time = i / samplingRate // Calculate time for the sample
             val modulatingSignal = fftData[i].toDouble() // Audio sample value (normalized)
 
-            val iComponent = (amplitude + modulatingSignal) * cos(2 * PI * time)
-            val qComponent = (amplitude + modulatingSignal) * sin(2 * PI * time)
+            val iComponent = modulatingSignal * cos(2 * PI * time)
+            val qComponent = modulatingSignal * sin(2 * PI * time)
 
             iqSignals.add(iq(iComponent.toFloat(), qComponent.toFloat()))
         }

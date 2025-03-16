@@ -18,15 +18,22 @@ import org.jfree.chart.ChartPanel
 import org.jfree.chart.JFreeChart
 import org.jfree.chart.plot.PlotOrientation
 import org.jfree.chart.plot.XYPlot
+import org.jfree.chart.renderer.AbstractRenderer
 import org.jfree.data.xy.XYSeries
 import org.jfree.data.xy.XYSeriesCollection
 import ru.levkopo.barsik.data.repositories.SignalRepository
+import ru.levkopo.barsik.ui.SignalSettings
+import java.awt.BasicStroke
 import java.awt.Color
 
-val series = XYSeries("Частота")
+val spectrumSeries = XYSeries("Спектр сигнала")
+val detectorSeries = XYSeries("Минимальная амплитуда детектора")
+
 @Composable
 fun SignalGraphCard() {
-    val fftResult by SignalRepository.fftResult.collectAsState()
+    val detectorAmplitude by SignalSettings.detectorAmplitude.collectAsState()
+    val selectedScale by SignalSettings.graphScale.collectAsState()
+    val fftResult by SignalRepository.currentSpectrum.collectAsState()
 
     Card(
         shape = RoundedCornerShape(size = 16.dp),
@@ -41,11 +48,14 @@ fun SignalGraphCard() {
         SwingPanel(
             modifier = Modifier.fillMaxSize(),
             factory = {
-                val dataset = XYSeriesCollection(series)
+                val dataset = XYSeriesCollection()
+                dataset.addSeries(detectorSeries)
+                dataset.addSeries(spectrumSeries)
+
                 val chart: JFreeChart = ChartFactory.createXYLineChart(
                     "",
                     "Частота, МГц",
-                    "Амплитуда",
+                    "",
                     dataset,
                     PlotOrientation.VERTICAL,
                     false,
@@ -53,43 +63,40 @@ fun SignalGraphCard() {
                     false
                 )
 
-
                 val xyPlot = chart.plot as XYPlot
-                xyPlot.renderer.defaultPaint = Color.getColor("#65558F")
+                val renderer = xyPlot.renderer as AbstractRenderer
+                renderer.defaultStroke = BasicStroke(1.5f)
+                renderer.defaultPaint = Color.BLACK
+                renderer.autoPopulateSeriesStroke = false
 
                 ChartPanel(chart).apply {
                     background = null
                 }
             },
-            update = {
-                series.clear()
-                fftResult.forEach {
-                    series.add(it.frequency, it.amplitude / 1000)
+            update = { panel ->
+                val xyPlot = panel.chart.plot as XYPlot
+                xyPlot.rangeAxis.label = "Амплитуда, " + when (selectedScale) {
+                    SignalSettings.Scale.DBM  -> "дБм"
+                    SignalSettings.Scale.MICRO_VOLT  -> "мкВ"
                 }
 
-                series.fireSeriesChanged()
+                detectorSeries.clear()
+                fftResult.forEach {
+                    detectorSeries.add(it.frequency, detectorAmplitude)
+                }
+
+                detectorSeries.fireSeriesChanged()
+
+                spectrumSeries.clear()
+                fftResult.forEach {
+                    spectrumSeries.add(it.frequency, when (selectedScale) {
+                        SignalSettings.Scale.DBM  -> it.dBm
+                        SignalSettings.Scale.MICRO_VOLT  -> it.voltage
+                    })
+                }
+
+                spectrumSeries.fireSeriesChanged()
             }
         )
-//        CartesianChartHost(
-//            chart =
-//                rememberCartesianChart(
-//                    rememberLineCartesianLayer(),
-//                    startAxis = VerticalAxis.rememberStart(),
-//                    bottomAxis = HorizontalAxis.rememberBottom(),
-//                ),
-//            model = CartesianChartModel(
-//                LineCartesianLayerModel.build {
-//                    if (fftResult.isEmpty()) {
-//                        series(0, 0, 0, 0)
-//                    } else {
-//                        series(
-//                            x = fftResult.map { it.frequency },
-//                            y = fftResult.map { it.amplitude },
-//                        )
-//                    }
-//                }
-//            ),
-//            modifier = Modifier.fillMaxSize(),
-//        )
     }
 }

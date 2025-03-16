@@ -49,14 +49,16 @@ fun AppScreen() {
                             workbook {
                                 sheet("Итоги") {
                                     row {
-                                        cell("Частота")
-                                        cell("Амплитуда")
+                                        cell("Частота, МГц")
+                                        cell("Амплитуда, дБм")
+                                        cell("Амплитуда, мкВ")
                                     }
 
                                     table.forEach { signal ->
                                         row {
                                             cell(signal.key)
-                                            cell(signal.value)
+                                            cell(signal.value.dBm)
+                                            cell(signal.value.voltage)
                                         }
                                     }
                                 }

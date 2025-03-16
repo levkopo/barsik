@@ -70,7 +70,8 @@ class TransporterCtrlUsesPortImpl(
         )
 
         val port = application.getConnectedPort("DataConnection") as TransporterController
-        Thread.sleep(1)
+        Thread.sleep(10)
+
         port.sendSignalMessage(newMessage)
         outputMessage.tryEmit(newMessage.asString())
     }
