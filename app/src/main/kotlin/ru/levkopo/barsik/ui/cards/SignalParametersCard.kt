@@ -86,8 +86,8 @@ fun SignalParametersCard() {
                         value = frequency.toString(),
                         enabled = isInitialized,
                         onValueChange = {
-                            frequency = it.toDouble()
-                            SignalConfig.frequency = it.toDouble() * 1000000
+                            frequency = it.toDoubleOrNull() ?: (SignalConfig.frequency / 1000000)
+                            SignalConfig.frequency = frequency * 1000000
                         },
                         label = { Text("Частота") },
                         modifier = Modifier
@@ -102,8 +102,8 @@ fun SignalParametersCard() {
                         value = width.toString(),
                         enabled = isInitialized,
                         onValueChange = {
-                            width = it.toDouble()
-                            SignalConfig.width = it.toDouble() * 1000
+                            width = it.toDoubleOrNull() ?: (SignalConfig.width / 1000)
+                            SignalConfig.width = width * 1000
                         },
                         label = { Text("Полоса") },
                         modifier = Modifier
