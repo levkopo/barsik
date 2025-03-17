@@ -55,7 +55,7 @@ fun SignalGraphCard() {
 
                 val chart: JFreeChart = ChartFactory.createXYLineChart(
                     "",
-                    "Частота, МГц",
+                    "Частота, Гц",
                     "",
                     dataset,
                     PlotOrientation.VERTICAL,

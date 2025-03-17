@@ -32,7 +32,7 @@ fun SignalTableCard() {
         Column {
             Row(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    "Частота, МГЦ",
+                    "Частота, ГЦ",
                     fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onPrimary,
                     textAlign = TextAlign.Center,

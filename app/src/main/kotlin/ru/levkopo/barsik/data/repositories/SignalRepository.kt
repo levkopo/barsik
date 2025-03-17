@@ -81,7 +81,7 @@ object SignalRepository {
                     val power = vrms.pow(2) / 50
 
                     result.add(Signal(
-                        frequency = currentFrequency / 10e+5,
+                        frequency = currentFrequency,
                         voltage = amplitude,
                         dBm = when(power) {
                             0.0 -> 0.0

@@ -50,7 +50,7 @@ fun AppScreen() {
                             workbook {
                                 sheet("Итоги") {
                                     row {
-                                        cell("Частота, МГц")
+                                        cell("Частота, Гц")
                                         cell("Амплитуда, дБм")
                                         cell("Амплитуда, мкВ")
                                     }
