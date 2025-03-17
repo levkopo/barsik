@@ -16,6 +16,7 @@ import ru.levkopo.barsik.configs.ORBConfig
 import ru.levkopo.barsik.emu.poa.factory.ApplicationFactoryImpl
 import ru.levkopo.barsik.emu.utils.bind_or_rebind
 import ru.levkopo.barsik.emu.utils.try_bind_new_context
+import java.io.File
 import java.util.*
 import kotlin.system.exitProcess
 
@@ -31,7 +32,7 @@ fun launchORBD() = mainScope.launch {
     orbdProcessFlow.value?.destroyForcibly()
     orbdProcessFlow.value = null
 
-    val orbdStartup = arrayOf("$JVM18_PATH/bin/orbd") + ORBConfig.buildOrbInitialParameters()
+    val orbdStartup = arrayOf("$JVM18_PATH${File.separator}bin${File.separator}orbd") + ORBConfig.buildOrbInitialParameters()
     println("Starting ORB daemon: ${orbdStartup.joinToString(" ")}")
 
     val process = runtime.exec(orbdStartup)
