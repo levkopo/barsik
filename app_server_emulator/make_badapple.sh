@@ -1,1 +1,1 @@
-ffmpeg -i bad_apple.mp4 -vf fps=24 frames/frame_%04d.bmp
+ffmpeg -i bad_apple.mp4 -vf fps=24 frames/%04d.bmp

@@ -14,6 +14,7 @@ import org.omg.CORBA.ORB
 import org.omg.CORBA.TCKind
 import ru.levkopo.barsik.configs.SignalConfig
 import ru.levkopo.barsik.data.remote.SignalOrbManager
+import ru.levkopo.barsik.models.asString
 import ru.levkopo.barsik.ui.SignalSettings
 import ru.levkopo.barsik.ui.SignalSettings.Scale
 import kotlin.math.log10

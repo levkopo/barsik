@@ -21,12 +21,26 @@ sourceSets {
 
 compose.desktop {
     application {
-        mainClass = "zation.server.api.MainKt"
+        mainClass = "ru.levkopo.barsik.MainKt"
 
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            targetFormats(TargetFormat.Exe)
             packageName = "KotlinJvmComposeDesktopApplication"
             packageVersion = "1.0.0"
+
+            windows {
+                shortcut = true
+                menuGroup = packageName
+                iconFile.set(project.file("app_icon.ico"))
+            }
+
+            linux {
+                iconFile.set(project.file("app_icon.png"))
+            }
+        }
+
+        buildTypes.release.proguard {
+            isEnabled.set(false)
         }
     }
 }
@@ -38,6 +52,7 @@ dependencies {
     // Add compose
     implementation(compose.desktop.currentOs)
     implementation(compose.material3)
+    implementation(compose.components.resources)
 
     // Excelkt
     implementation("io.github.evanrupert:excelkt:1.0.2")
@@ -64,7 +79,7 @@ tasks.jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
         attributes(
-            "Main-Class" to "zation.server.api.MainKt"
+            "Main-Class" to "ru.levkopo.barsik.MainKt"
         )
     }
 

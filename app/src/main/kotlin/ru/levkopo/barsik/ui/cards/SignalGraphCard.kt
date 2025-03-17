@@ -43,8 +43,8 @@ fun SignalGraphCard() {
                 containerColor = MaterialTheme.colorScheme.surfaceContainer,
             ),
         modifier = Modifier
-            .width(720.dp)
-            .height(420.dp)
+            .width(1200.dp)
+            .height(620.dp)
     ) {
         SwingPanel(
             modifier = Modifier.fillMaxSize(),

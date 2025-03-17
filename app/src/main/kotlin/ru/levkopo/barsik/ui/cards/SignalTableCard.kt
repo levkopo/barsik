@@ -27,7 +27,7 @@ fun SignalTableCard() {
     Card(
         shape = RoundedCornerShape(size = 16.dp), colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainer,
-        ), modifier = Modifier.width(720.dp).height(420.dp)
+        ), modifier = Modifier.height(258.dp)
     ) {
         Column {
             Row(modifier = Modifier.fillMaxWidth()) {

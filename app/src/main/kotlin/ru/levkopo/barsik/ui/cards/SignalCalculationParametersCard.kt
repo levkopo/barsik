@@ -23,14 +23,13 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import ru.levkopo.barsik.configs.SignalConfig
 import ru.levkopo.barsik.data.repositories.SignalRepository
 import ru.levkopo.barsik.data.repositories.SystemBoardInformationRepository
 import ru.levkopo.barsik.ui.SignalSettings
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun SignalGraphParametersCard() {
+fun SignalCalculationParametersCard() {
     val selectedScale by SignalSettings.graphScale.collectAsState()
     val detectorAmplitude by SignalSettings.detectorAmplitude.collectAsState()
     val systemBoardInfo by SystemBoardInformationRepository.systemBoardInfo.collectAsState()
@@ -61,15 +60,6 @@ fun SignalGraphParametersCard() {
                     .padding(horizontal = 16.dp, vertical = 14.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text(
-                    text = "Общее",
-                    fontSize = 13.sp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(30.dp),
-                )
-
-                HorizontalDivider()
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -103,16 +93,6 @@ fun SignalGraphParametersCard() {
                 .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(
-                text = "Детектор",
-                fontSize = 13.sp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(30.dp),
-            )
-
-            HorizontalDivider()
-
             OutlinedTextField(
                 value = detectorAmplitude.toString(),
                 onValueChange = {
@@ -128,10 +108,10 @@ fun SignalGraphParametersCard() {
                 visualTransformation = VisualTransformation.None,
             )
 
-            Button(onClick = {
+            OutlinedButton(onClick = {
                 SignalRepository.clearTable()
             }) {
-                Text("Отчистить таблицу")
+                Text("Очистить таблицу")
             }
         }
     }

@@ -2,6 +2,7 @@ package ru.levkopo.barsik.data.remote
 
 import kotlinx.coroutines.delay
 import org.apache.commons.net.telnet.TelnetClient
+import ru.levkopo.barsik.configs.ApplicationConfig
 import ru.levkopo.barsik.configs.ServerConfig
 import java.io.PrintStream
 
@@ -31,7 +32,7 @@ internal class TelnetInitializer {
         outputStream.flush()
         delay(100)
 
-        outputStream.println("./uhf.sh")
+        outputStream.println(ApplicationConfig.serverStartupCommandName)
         outputStream.flush()
 
         delay(1000)

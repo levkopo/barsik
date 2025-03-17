@@ -32,7 +32,11 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import ru.levkopo.barsik.configs.SignalConfig
+import ru.levkopo.barsik.data.remote.SignalOrbManager
 import ru.levkopo.barsik.data.repositories.SignalRepository
 import ru.levkopo.barsik.data.repositories.SystemBoardInformationRepository
 import ru.levkopo.barsik.models.asString
@@ -50,6 +54,7 @@ fun SignalParametersCard() {
     var filterExpanded by remember { mutableStateOf(false) }
     var attenuatorExpanded by remember { mutableStateOf(false) }
     var channelExpanded by remember { mutableStateOf(false) }
+    var serverStarting by remember { mutableStateOf(false) }
     val isInitialized by SignalRepository.isInitialized.collectAsState()
     val isRunning by SignalRepository.isRunning.collectAsState()
 
@@ -201,7 +206,7 @@ fun SignalParametersCard() {
                                     text = { Text("$it дБ") },
                                     onClick = {
                                         SignalConfig.attenuator = it
-                                        attenuator
+                                        attenuator = it
                                         attenuatorExpanded = false
                                     }
                                 )
@@ -265,22 +270,48 @@ fun SignalParametersCard() {
                     .padding(horizontal = 16.dp, vertical = 14.dp),
             ) {
                 Spacer(Modifier.weight(4f))
-                OutlinedIconButton(
-                    enabled = isInitialized,
-                    onClick = {
-                        if (isRunning) {
-                            SignalRepository.stopSignalDataExchange()
-                        } else {
-                            SignalRepository.startSignalDataExchange()
+                when {
+                    isInitialized -> OutlinedIconButton(
+                        enabled = isInitialized,
+                        onClick = {
+                            if (isRunning) {
+                                SignalRepository.stopSignalDataExchange()
+                            } else {
+                                SignalRepository.startSignalDataExchange()
+                            }
+                        }
+                    ) {
+                        Icon(
+                            when {
+                                isRunning -> Icons.Filled.Close
+                                else -> Icons.Filled.PlayArrow
+                            }, contentDescription = null
+                        )
+                    }
+
+                    else -> {
+                        Button(
+                            enabled = !serverStarting,
+                            onClick = {
+                                serverStarting = true
+                                CoroutineScope(Dispatchers.Default).launch {
+                                    SignalOrbManager.start()
+                                        .onSuccess {
+                                            serverStarting = false
+                                            println("Application started successfully")
+                                        }
+                                        .onFailure { error ->
+                                            error.printStackTrace()
+                                            serverStarting = false
+                                        }
+                                }
+                            }
+                        ) {
+                            Text(
+                                text = "Запустить сервер"
+                            )
                         }
                     }
-                ) {
-                    Icon(
-                        when {
-                            isRunning -> Icons.Filled.Close
-                            else -> Icons.Filled.PlayArrow
-                        }, contentDescription = null
-                    )
                 }
             }
         }

@@ -25,7 +25,11 @@ import java.io.FileInputStream
 import javax.imageio.ImageIO
 
 class BadAppleModulator : BaseModulator() {
-    private val framesFiles by lazy { File("./app_server_emulator/frames").listFiles() }
+    private val framesFiles by lazy {
+        File("./app_server_emulator/frames").listFiles().toList().sortedBy {
+            it.nameWithoutExtension
+        }
+    }
     private val framesCount by lazy { framesFiles.size }
 
     private val frameRate = 24
