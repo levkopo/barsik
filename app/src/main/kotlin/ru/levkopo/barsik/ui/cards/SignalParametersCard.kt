@@ -166,6 +166,15 @@ fun SignalParametersCard() {
                                     }
                                 )
                             }
+
+                            DropdownMenuItem(
+                                text = { Text(String.format("%.3f", 1000000f / 1000).replace(',', '.') + " кГц") },
+                                onClick = {
+                                    SignalConfig.filter = 1000000f
+                                    filter = 1000f
+                                    filterExpanded = false
+                                }
+                            )
                         }
                     }
 
@@ -252,7 +261,7 @@ fun SignalParametersCard() {
                                 DropdownMenuItem(
                                     text = { Text((it.id + 1).toString()) },
                                     onClick = {
-                                        SignalConfig.attenuator = (it.id + 1).toShort()
+                                        SignalConfig.channel = (it.id + 1)
                                         channel = it.id + 1
                                         channelExpanded = false
                                     }
