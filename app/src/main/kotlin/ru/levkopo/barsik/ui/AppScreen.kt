@@ -20,7 +20,7 @@ import javax.swing.filechooser.FileNameExtensionFilter
 
 val fileChooser = JFileChooser().apply {
     val date = Date()
-    setSelectedFile(File("Barsic Export $date.xlsx"))
+    setSelectedFile(File("Barsic Export $date.xlsx".replace(":", ".")))
     resetChoosableFileFilters()
     addChoosableFileFilter(
         FileNameExtensionFilter("XLSX таблица", "xlsx")
@@ -32,7 +32,7 @@ val fileChooser = JFileChooser().apply {
 @Preview
 fun AppScreen() {
     var state by remember { mutableStateOf(0) }
-    val titles = listOf("Рабочая зона", "Экспорт", "Настройки")
+
     Column {
         SecondaryTabRow(selectedTabIndex = state) {
             Tab(

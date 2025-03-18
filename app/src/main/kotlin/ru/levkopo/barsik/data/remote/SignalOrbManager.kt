@@ -10,6 +10,9 @@ import org.omg.PortableServer.POA
 import ru.levkopo.barsik.configs.ApplicationConfig
 import ru.levkopo.barsik.models.Either
 
+/**
+ * Логика создания приложения с помощью фабрики приложений
+ */
 object SignalOrbManager {
     private val orbManager = OrbManager()
     private var isInitialized = false

@@ -18,6 +18,9 @@ import androidx.compose.ui.unit.sp
 import ru.levkopo.barsik.emu.launchORBD
 import ru.levkopo.barsik.emu.poa.ports.transporters.TransporterCtrlUsesPortImpl
 
+/**
+ * Экран с информацией о состоянии ORB сервера
+ */
 @Composable
 fun ORBSection() {
     val inputMessage by TransporterCtrlUsesPortImpl.inputMessage.collectAsState()

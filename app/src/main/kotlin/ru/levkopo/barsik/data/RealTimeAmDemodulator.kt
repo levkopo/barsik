@@ -4,6 +4,9 @@ import ru.levkopo.barsik.configs.SignalConfig
 import javax.sound.sampled.*
 import kotlin.math.*
 
+/**
+ * Попытка реализовать AM демодулятор
+ */
 class RealTimeAmDemodulator(
     private val iqDataSource: IqDataSource,
     private val sampleRate: Double = 31250 * 2.0,

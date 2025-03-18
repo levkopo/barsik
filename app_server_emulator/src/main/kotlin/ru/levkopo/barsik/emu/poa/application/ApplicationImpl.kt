@@ -10,6 +10,9 @@ import ru.levkopo.barsik.emu.poa.ports.resource.ResourceImpl
 import ru.levkopo.barsik.emu.poa.ports.transporters.TransporterCtrlUsesPortImpl
 import ru.levkopo.barsik.emu.poa.ports.transporters.TransporterDataPortImpl
 
+/**
+ * Эмулятор серверного приложения
+ */
 class ApplicationImpl(
     private val rootPOA: POA,
     private val initConfiguration: Array<out DataType>,

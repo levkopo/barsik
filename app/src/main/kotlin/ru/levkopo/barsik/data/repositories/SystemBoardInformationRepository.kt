@@ -13,6 +13,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import ru.levkopo.barsik.data.remote.SignalOrbManager
 
+/**
+ * Репозиторий информации о сигнальной плате
+ */
 object SystemBoardInformationRepository {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val _systemBoardInfo = MutableStateFlow<SigBoardInfo3?>(null)

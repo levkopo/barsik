@@ -13,6 +13,9 @@ import ru.levkopo.barsik.emu.poa.application.ApplicationImpl
 import ru.levkopo.barsik.emu.poa.ports.transporters.TransporterDataPortImpl.TransporterController
 import ru.levkopo.barsik.models.asString
 
+/**
+ * Реализация порта отправки сигнальной информации
+ */
 class TransporterCtrlUsesPortImpl(
     private val application: ApplicationImpl
 ) : TransporterCtrlUsesPort_v3POA() {
@@ -23,6 +26,9 @@ class TransporterCtrlUsesPortImpl(
 
     override fun SendTest() {}
 
+    /**
+     * Вызывается при запросе нового сигнального сообщения
+     */
     override fun SendSignalMessage(message: SignalMsg) {
         ModulatorsManager.carrierFrequency = message.params.freq - message.params.width / 2
 
@@ -77,17 +83,9 @@ class TransporterCtrlUsesPortImpl(
     }
 
 
-    override fun SendPowerPhaseQuery(): Int {
-        TODO("Not yet implemented")
-    }
-
-    override fun SendIQSpectrumQuery(): Int {
-        TODO("Not yet implemented")
-    }
-
-    override fun getSigBoardInfo(): Int {
-        TODO("Not yet implemented")
-    }
+    override fun SendPowerPhaseQuery(): Int = 0
+    override fun SendIQSpectrumQuery(): Int = 0
+    override fun getSigBoardInfo(): Int = 0
 
     override fun releaseFifo() {
         println("TransporterCtrlUsesPort_v3POA.releaseFifo")

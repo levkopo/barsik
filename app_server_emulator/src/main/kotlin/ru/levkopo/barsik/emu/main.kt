@@ -11,9 +11,21 @@ import com.khubla.telnet.shell.ShellFactory
 import ru.levkopo.barsik.emu.ui.AppScreen
 import kotlin.concurrent.thread
 
+/**
+ * Путь до JDK 1.8 (liberica-full)
+ * Обязательный для запуска
+ */
+const val JVM18_PATH = "/home/levkopo/.jdks/liberica-full-1.8.0_442"
+
+/**
+ * Запуск эмулятора
+ */
 @OptIn(ExperimentalStdlibApi::class)
 fun main() {
+    // Запуск orb сервера
     launchORBObserver()
+
+    // Запуск telnet сервера
     thread {
         TelnetServer(23, 20, object : ShellFactory {
             override fun createShell(nvt: NVT): Shell = BarsShellImpl(
@@ -27,6 +39,7 @@ fun main() {
         }).run()
     }
 
+    // Запуск UI для управления эмулятором
     application {
         Window(onCloseRequest = ::exitApplication) {
             AppScreen()

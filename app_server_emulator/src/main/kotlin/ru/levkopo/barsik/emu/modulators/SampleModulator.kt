@@ -8,6 +8,9 @@ import org.jacorb.orb.CDRInputStream
 import ru.levkopo.barsik.emu.modulators.base.BaseModulator
 import java.util.Random
 
+/**
+ * Модулятор сигналов из заготовленых CORBA сообщений
+ */
 class SampleModulator: BaseModulator() {
     private val random = Random()
     private val sampleSignals = arrayOf(

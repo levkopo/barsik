@@ -13,6 +13,9 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
+/**
+ * Модулятор сигналов из спектра сигнала микрофона
+ */
 class MicrophoneModulator: BaseModulator() {
     override suspend fun run() {
         try {

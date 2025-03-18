@@ -18,6 +18,9 @@ private data class Section(
     val screen: @Composable () -> Unit,
 )
 
+/**
+ * Секции главного экрана
+ */
 private val sections = arrayOf<Section>(
     Section(
         name = "ORB",
@@ -31,6 +34,9 @@ private val sections = arrayOf<Section>(
     )
 )
 
+/**
+ * Главный экран
+ */
 @Preview
 @Composable
 fun AppScreen() {

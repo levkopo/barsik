@@ -2,6 +2,9 @@ package ru.levkopo.barsik.configs
 
 import java.util.*
 
+/**
+ * Класс для автоматической генерации параметров подключения к ORB серверу
+ */
 object ORBConfig {
     fun buildOrbInitialParameters() = arrayOf(
         "-ORBInitialHost", ServerConfig.linuxBoxIp,

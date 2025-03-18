@@ -6,6 +6,9 @@ import ru.levkopo.barsik.configs.ApplicationConfig
 import ru.levkopo.barsik.configs.ServerConfig
 import java.io.PrintStream
 
+/**
+ * Логика инициализации сервера по telnet
+ */
 internal class TelnetInitializer {
     private val client = TelnetClient().apply {
         connectTimeout = 5000

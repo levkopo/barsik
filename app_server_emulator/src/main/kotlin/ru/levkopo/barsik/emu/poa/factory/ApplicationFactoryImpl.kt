@@ -3,6 +3,9 @@ package ru.levkopo.barsik.emu.poa.factory
 import CF.*
 import ru.levkopo.barsik.emu.poa.application.ApplicationImpl
 
+/**
+ * Эмулятор фабрики серверных приложений
+ */
 class ApplicationFactoryImpl(
     private val rootPOA: org.omg.PortableServer.POA,
 ) : ApplicationFactoryPOA() {

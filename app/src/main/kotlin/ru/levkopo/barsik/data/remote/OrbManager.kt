@@ -7,6 +7,9 @@ import org.omg.PortableServer.POA
 import org.omg.PortableServer.POAHelper
 import ru.levkopo.barsik.configs.ORBConfig
 
+/**
+ * Логика подключения к серверу ORB
+ */
 internal class OrbManager {
     private val telnetInitializer = TelnetInitializer()
 

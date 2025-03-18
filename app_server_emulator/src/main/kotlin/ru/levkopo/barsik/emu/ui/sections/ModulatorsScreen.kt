@@ -10,6 +10,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import ru.levkopo.barsik.emu.modulators
 
+/**
+ * Экран с модуляторами
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ModulatorsScreen() {

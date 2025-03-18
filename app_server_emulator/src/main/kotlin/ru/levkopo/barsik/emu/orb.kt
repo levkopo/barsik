@@ -24,7 +24,6 @@ private val mainScope = CoroutineScope(Dispatchers.IO)
 private val orbdProcessFlow = MutableStateFlow<Process?>(null)
 private val runtime = Runtime.getRuntime()
 
-const val JVM18_PATH = "/home/levkopo/.jdks/liberica-full-1.8.0_442"
 
 val orbFlow = MutableStateFlow<ORB?>(null)
 

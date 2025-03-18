@@ -1,21 +1,21 @@
 package ru.levkopo.barsik.emu.poa.ports.transporters
 
-import CF.AbstractPort
-import CF.Port
 import CF.PortSupplier.UnknownPort
 import DSP.*
 import org.omg.CORBA.Object
-import org.omg.PortableServer.POA
 import ru.levkopo.barsik.emu.poa.application.ApplicationImpl
 import kotlin.concurrent.thread
 
+/**
+ * Реализация порта подключения портов клиента
+ */
 class TransporterDataPortImpl(
     private val application: ApplicationImpl
 ) : TransporterDataPortPOA() {
 
     override fun connectPort(connection: Object, connectionId: String) {
         println("Connecting port: $connection, connectionId: $connectionId")
-        when(connectionId) {
+        when (connectionId) {
             "DataConnection" -> when {
                 connection._is_a(TransporterCtrlUsesPort_v1Helper.id()) -> {
                     val transporter: TransporterController = try {
@@ -41,9 +41,11 @@ class TransporterDataPortImpl(
 
                 else -> throw UnknownPort()
             }
+
             else -> throw UnknownPort()
         }
     }
+
     open class TransporterControllerV1(
         val orbTransporter: TransporterCtrlUsesPort_v1
     ) : TransporterController {
