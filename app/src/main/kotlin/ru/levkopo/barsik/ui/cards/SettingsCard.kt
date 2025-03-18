@@ -20,7 +20,7 @@ fun SettingsCard() {
     var linuxBoxOrbPort by remember { mutableStateOf(ServerConfig.linuxBoxOrbPort) }
     var linuxBoxPassword by remember { mutableStateOf(ServerConfig.linuxBoxPassword) }
     var linuxBoxUsername by remember { mutableStateOf(ServerConfig.linuxBoxUsername) }
-    var linuxBoxSUPassword by remember { mutableStateOf(ServerConfig.linuxBoxPassword) }
+    var linuxBoxSUPassword by remember { mutableStateOf(ServerConfig.linuxBoxSUPassword) }
     var profile by remember { mutableStateOf(ApplicationConfig.profile) }
     var serverStartupCommandName by remember { mutableStateOf(ApplicationConfig.serverStartupCommandName) }
 
