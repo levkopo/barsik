@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.WindowState
 import ru.levkopo.barsik.ui.cards.SignalGraphCard
 import ru.levkopo.barsik.ui.cards.SignalCalculationParametersCard
 import ru.levkopo.barsik.ui.cards.SignalTableCard
@@ -15,7 +16,7 @@ import ru.levkopo.barsik.ui.cards.SignalParametersCard
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
-fun WorkspaceTab() {
+fun WorkspaceTab(windowState: WindowState) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -33,9 +34,12 @@ fun WorkspaceTab() {
             Column(
                 verticalArrangement = Arrangement.spacedBy(18.dp),
             ) {
-                SignalGraphCard()
+                SignalGraphCard(
+                    windowState,
+                    modifier = Modifier.weight(1f)
+                )
                 Row(
-                    modifier = Modifier.width(1200.dp),
+                    modifier = Modifier.width(1200.dp).padding(bottom = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(18.dp),
                 ) {
                     SignalCalculationParametersCard()

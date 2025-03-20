@@ -25,7 +25,7 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Exe)
-            packageName = "KotlinJvmComposeDesktopApplication"
+            packageName = "Barsik"
             packageVersion = "1.0.0"
 
             windows {

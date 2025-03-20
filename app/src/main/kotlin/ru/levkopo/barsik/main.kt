@@ -1,7 +1,11 @@
 package ru.levkopo.barsik
 
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
@@ -69,7 +73,7 @@ fun main() {
             )
         ) {
             MaterialTheme {
-                AppScreen()
+                AppScreen(windowState)
             }
         }
     }

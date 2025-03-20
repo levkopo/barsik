@@ -13,7 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.SwingPanel
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.max
+import androidx.compose.ui.window.WindowState
 import org.jfree.chart.ChartFactory
 import org.jfree.chart.ChartPanel
 import org.jfree.chart.JFreeChart
@@ -31,7 +31,7 @@ val spectrumSeries = XYSeries("Спектр сигнала")
 val detectorSeries = XYSeries("Минимальная амплитуда детектора")
 
 @Composable
-fun SignalGraphCard() {
+fun SignalGraphCard(windowState: WindowState, modifier: Modifier) {
     val detectorAmplitude by SignalSettings.detectorAmplitude.collectAsState()
     val selectedScale by SignalSettings.graphScale.collectAsState()
     val fftResult by SignalRepository.currentSpectrum.collectAsState()
@@ -42,12 +42,13 @@ fun SignalGraphCard() {
             .cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainer,
             ),
-        modifier = Modifier
+        modifier = modifier
             .width(1200.dp)
-            .height(620.dp)
+            .height(((windowState.size.height - 258.dp) / 1080 * 620))
     ) {
         SwingPanel(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize(),
             factory = {
                 val dataset = XYSeriesCollection()
                 dataset.addSeries(detectorSeries)

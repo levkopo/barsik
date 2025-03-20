@@ -8,6 +8,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.window.WindowState
 import io.github.evanrupert.excelkt.workbook
 import org.apache.poi.xssf.usermodel.XSSFCellStyle
 import ru.levkopo.barsik.data.repositories.SignalRepository
@@ -30,7 +31,7 @@ val fileChooser = JFileChooser().apply {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
-fun AppScreen() {
+fun AppScreen(windowState: WindowState) {
     var state by remember { mutableStateOf(0) }
 
     Column {
@@ -77,7 +78,7 @@ fun AppScreen() {
         }
 
         when (state) {
-            0 -> WorkspaceTab()
+            0 -> WorkspaceTab(windowState)
             2 -> SettingsTab()
         }
     }
