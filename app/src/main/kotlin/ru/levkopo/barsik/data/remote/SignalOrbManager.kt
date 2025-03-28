@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.map
 import org.omg.CosNaming.NameComponent
 import org.omg.PortableServer.POA
 import ru.levkopo.barsik.configs.ApplicationConfig
+import ru.levkopo.barsik.data.repositories.LogsRepository
 import ru.levkopo.barsik.models.Either
 
 /**
@@ -19,29 +20,50 @@ object SignalOrbManager {
 
     private val applicationStateFlow = MutableStateFlow<Application?>(null)
 
-    suspend fun start() = when {
-        !isInitialized -> orbManager.initialize().onSuccess {
-            val factory = ApplicationFactoryHelper.narrow(orbManager.namingContext.resolve(arrayOf(
-                NameComponent("DSP", ""),
-                NameComponent("NIG-5 Applications", ""),
-            )))
+    suspend fun start(): Boolean {
+        LogsRepository.info(javaClass.simpleName, "Запрос инициализации")
 
-            applicationStateFlow.emit(
-                factory.create(
-                    "SNTest",
-                    arrayOf(
-                        DataType("profile", orbManager.orb.create_any().apply {
-                            insert_string(ApplicationConfig.profile)
-                        })
-                    ),
-                    arrayOf()
-                )
-            )
+        when {
+            !isInitialized -> {
+                if(!orbManager.initialize()) {
+                    return false
+                }
 
-            isInitialized = true
+                try {
+                    LogsRepository.info(javaClass.simpleName, "Получение ApplicationFactory")
+                    val factory = ApplicationFactoryHelper.narrow(orbManager.namingContext.resolve(arrayOf(
+                        NameComponent("DSP", ""),
+                        NameComponent("NIG-5 Applications", ""),
+                    )))
+
+                    LogsRepository.info(javaClass.simpleName, "Создание приложения SNTest(profile=${ApplicationConfig.profile})")
+                    applicationStateFlow.emit(
+                        factory.create(
+                            "SNTest",
+                            arrayOf(
+                                DataType("profile", orbManager.orb.create_any().apply {
+                                    insert_string(ApplicationConfig.profile)
+                                })
+                            ),
+                            arrayOf()
+                        ).also {
+                            LogsRepository.info(javaClass.simpleName, "Приложение создано")
+                        }
+                    )
+
+                    isInitialized = true
+                    return true
+                }catch (e: Throwable) {
+                    LogsRepository.error(javaClass.simpleName, e)
+                    return false
+                }
+            }
+
+            else -> {
+                LogsRepository.info(javaClass.simpleName, "Инициализация не требуется")
+                return true
+            }
         }
-
-        else -> runCatching {}
     }
 
     fun stop() {

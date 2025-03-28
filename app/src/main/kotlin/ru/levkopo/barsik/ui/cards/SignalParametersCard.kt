@@ -304,15 +304,7 @@ fun SignalParametersCard() {
                             onClick = {
                                 serverStarting = true
                                 CoroutineScope(Dispatchers.Default).launch {
-                                    SignalOrbManager.start()
-                                        .onSuccess {
-                                            serverStarting = false
-                                            println("Application started successfully")
-                                        }
-                                        .onFailure { error ->
-                                            error.printStackTrace()
-                                            serverStarting = false
-                                        }
+                                    serverStarting = SignalOrbManager.start()
                                 }
                             }
                         ) {

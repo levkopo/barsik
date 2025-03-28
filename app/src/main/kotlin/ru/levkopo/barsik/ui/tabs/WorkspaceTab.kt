@@ -8,6 +8,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowState
+import ru.levkopo.barsik.ui.cards.SignalLogsCard
 import ru.levkopo.barsik.ui.cards.SignalGraphCard
 import ru.levkopo.barsik.ui.cards.SignalCalculationParametersCard
 import ru.levkopo.barsik.ui.cards.SignalTableCard
@@ -29,6 +30,7 @@ fun WorkspaceTab(windowState: WindowState) {
                 verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
                 SignalParametersCard()
+                SignalLogsCard(Modifier.height(420.dp))
             }
 
             Column(
