@@ -16,15 +16,17 @@ object ORBConfig {
         this["org.omg.CORBA.ORBInitialHost"] = ServerConfig.linuxBoxIp
         this["org.omg.CORBA.ORBInitialPort"] = ServerConfig.linuxBoxOrbPort
 
-        System.setProperty("jacorb.log.default.verbosity", "0")
-        this["org.omg.CORBA.ORBClass"] = "org.jacorb.orb.ORB"
-
-        val clientConnTimeout = Integer.getInteger("com.lni.lps.clientConnTimeout", 60000)
-        val clientReplyTimeout = Integer.getInteger("com.lni.lps.clientReplyTimeout", 300000)
-
-        this["jacorb.connection.client.pending_reply_timeout"] = clientReplyTimeout.toString()
-        this["jacorb.connection.client.connect_timeout"] = clientConnTimeout.toString()
-
-        this["jacorb.connection.server.timeout"] = clientReplyTimeout.toString()
+//        System.setProperty("jacorb.log.default.verbosity", "0")
+//        this["org.omg.CORBA.ORBClass"] = "org.jacorb.orb.ORB"
+//
+//        val clientConnTimeout = Integer.getInteger("com.lni.lps.clientConnTimeout", 60000)
+//        val clientReplyTimeout = Integer.getInteger("com.lni.lps.clientReplyTimeout", 300000)
+//
+//        this["jacorb.connection.client.pending_reply_timeout"] = clientReplyTimeout.toString()
+//        this["jacorb.connection.client.connect_timeout"] = clientConnTimeout.toString()
+//
+//        this["jacorb.connection.server.timeout"] = clientReplyTimeout.toString()
+        put("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB")
+        put("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton")
     }
 }

@@ -15,6 +15,7 @@ import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.decodeToImageBitmap
 import ru.levkopo.barsik.data.remote.SignalOrbManager
+import ru.levkopo.barsik.data.repositories.LogsRepository
 import ru.levkopo.barsik.ui.AppScreen
 import java.awt.Dimension
 import javax.imageio.ImageIO
@@ -48,6 +49,8 @@ fun showSplash() {
 
 @OptIn(ExperimentalResourceApi::class)
 fun main() {
+    // Проверка на текущую версию java
+    LogsRepository.info("main", "Java version: ${Runtime.version()}")
     showSplash()
 
     application {

@@ -85,7 +85,7 @@ tasks.jar {
 
 //    include(sourceSets.getByName("main").resources.includes)
 
-    from(configurations.compileClasspath.map { config -> config.map { if (it.isDirectory) it else zipTree(it) } })
+    from(configurations.runtimeClasspath.map { config -> config.map { if (it.isDirectory) it else zipTree(it) } })
         .exclude("META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")
 }
 

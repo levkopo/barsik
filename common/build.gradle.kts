@@ -21,6 +21,7 @@ dependencies {
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.9.0")
     api("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.9.0")
+    api("org.jacorb:jacorb-omgapi:3.9")
     api("org.jboss.spec.javax.rmi:jboss-rmi-api_1.0_spec:1.0.6.Final")
     api("org.jacorb:jacorb:3.2")
 

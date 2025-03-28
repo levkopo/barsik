@@ -51,6 +51,17 @@ object LogsRepository {
         title: String,
         message: String,
     ) {
+        when (type) {
+            Type.INFO -> {
+                println("INFO $title: $message")
+            }
+            Type.WARNING -> {
+                println("WARN $title: $message")
+            }
+            Type.ERROR -> {
+                System.err.println("ERROR $title: $message")
+            }
+        }
         _logs.value = ArrayList<Log>(_logs.value).apply {
             add(Log(type, title, message))
         }
